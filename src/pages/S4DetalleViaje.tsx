@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
-import { MOCK_JOURNEYS, KNOWN_PLACES, RouteOption, INITIAL_ALERT } from '../data/mockData';
+import { BottomSheet } from '../components/BottomSheet';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import {
+  MOCK_JOURNEYS,
+  KNOWN_PLACES,
+  RouteOption,
+  INITIAL_ALERT,
+  DATA_LAST_UPDATED,
+} from '../data/mockData';
 import { getAlertsForRoute, getTimeAgoText, formatAlertDateTime } from '../utils/alerts';
+import {
+  findSavedTrip,
+  saveRoute,
+  removeSavedRoute,
+  isNameTaken,
+  getSavedRoutes,
+  MAX_SAVED_ROUTES,
+  SavedRoute,
+} from '../utils/storage';
 import {
   AlertTriangle,
   Bookmark,
   Flag,
   Compass,
+  Check,
+  ArrowRight,
+  AlertCircle
 } from 'lucide-react';
 
 function formatDuration(text: string): string {
@@ -23,6 +43,8 @@ const ACTION_CONFIG: Record<string, { label: string; badgeStyle: string }> = {
   bajate: { label: 'BÁJATE', badgeStyle: 'bg-slate-100 text-slate-700 border-slate-300' },
 };
 
+const SHORTCUT_NAMES = ['Casa', 'Trabajo', 'Estudio'];
+
 export const S4DetalleViaje: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -32,7 +54,13 @@ export const S4DetalleViaje: React.FC = () => {
   const optionId = searchParams.get('r') || '';
 
   const [activeTab, setActiveTab] = useState<'pasos' | 'mapa'>('pasos');
-  const [saveMessageVisible, setSaveMessageVisible] = useState(false);
+
+  // Estados para guardar y quitar ruta
+  const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
+  const [isConfirmRemoveOpen, setIsConfirmRemoveOpen] = useState(false);
+  const [customName, setCustomName] = useState('');
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [savedToast, setSavedToast] = useState(false);
 
   // Buscar el trayecto y la opción seleccionada
   let matchedOption: RouteOption | undefined;
@@ -84,10 +112,24 @@ export const S4DetalleViaje: React.FC = () => {
     if (dst) destName = dst.name;
   }
 
+  // Estado de ruta guardada sincronizado
+  const [savedItem, setSavedItem] = useState<SavedRoute | undefined>(() => {
+    if (originId && destId && matchedOption) {
+      return findSavedTrip(originId, destId, matchedOption.id);
+    }
+    return undefined;
+  });
+
+  useEffect(() => {
+    if (originId && destId && matchedOption) {
+      setSavedItem(findSavedTrip(originId, destId, matchedOption.id));
+    }
+  }, [originId, destId, matchedOption]);
+
   // Caso: No encontramos este viaje
   if (!matchedOption) {
     return (
-      <div className="flex flex-col h-full bg-[#f5f7fa]">
+      <div className="relative flex flex-col h-full bg-[#f5f7fa]">
         <TopBar title="Detalle del viaje" showBack={true} backFallback="/resultados" />
         <main className="flex-1 p-6 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-[#b26a00] mb-4">
@@ -123,8 +165,46 @@ export const S4DetalleViaje: React.FC = () => {
   // Pasos de la ruta
   const steps = matchedOption.steps || [];
 
-  const handleSaveRoute = () => {
-    setSaveMessageVisible(true);
+  const handleOpenSaveSheet = () => {
+    setCustomName('');
+    setNameError(null);
+    setIsSaveSheetOpen(true);
+  };
+
+  const handleSaveSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!matchedOption) return;
+
+    const defaultName = `${originName} a ${destName}`;
+    const chosenName = customName.trim() || defaultName;
+
+    // Validación 4c: Nombre repetido
+    if (isNameTaken(chosenName)) {
+      setNameError('Ya tienes una ruta con ese nombre. ¿Quieres usar otro?');
+      return;
+    }
+
+    const success = saveRoute({
+      originId,
+      destinationId: destId,
+      optionId: matchedOption.id,
+      name: chosenName,
+    });
+
+    if (success) {
+      setSavedItem(findSavedTrip(originId, destId, matchedOption.id));
+      setIsSaveSheetOpen(false);
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 2000);
+    }
+  };
+
+  const handleConfirmRemove = () => {
+    if (savedItem) {
+      removeSavedRoute(savedItem.id);
+      setSavedItem(undefined);
+    }
+    setIsConfirmRemoveOpen(false);
   };
 
   const handleReportProblem = () => {
@@ -135,13 +215,29 @@ export const S4DetalleViaje: React.FC = () => {
     navigate(`/reporte/tipo?${params.toString()}`);
   };
 
+  const totalSavedCount = getSavedRoutes().length;
+  const isLimitReached = !savedItem && totalSavedCount >= MAX_SAVED_ROUTES;
+
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="relative flex flex-col h-full bg-[#f5f7fa]">
       <TopBar
         title={pageTitle}
         showBack={true}
         backFallback={originId && destId ? `/resultados?o=${originId}&d=${destId}` : '/'}
       />
+
+      {/* Fecha de actualización de datos en letra pequeña debajo de la barra */}
+      <div className="px-4 py-1.5 bg-slate-100 border-b border-slate-200/80 text-[11px] text-slate-500 font-medium text-center shrink-0">
+        Datos al: {DATA_LAST_UPDATED}
+      </div>
+
+      {/* Toast breve de 2 segundos "Ruta guardada" */}
+      {savedToast && (
+        <div className="absolute top-16 left-4 right-4 z-40 bg-[#2e7d32] text-white px-4 py-2.5 rounded-xl text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn">
+          <Check className="w-4 h-4 stroke-[3]" />
+          <span>Ruta guardada</span>
+        </div>
+      )}
 
       <main className="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
         <div className="space-y-4">
@@ -345,21 +441,25 @@ export const S4DetalleViaje: React.FC = () => {
 
           {/* DOS BOTONES AL FINAL DEL CONTENIDO (No fijos, mínimo 48 px) */}
           <div className="pt-2 pb-6 space-y-2.5">
-            {/* Botón Principal: Guardar ruta */}
-            <button
-              type="button"
-              onClick={handleSaveRoute}
-              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
-            >
-              <Bookmark className="w-5 h-5 text-blue-200" />
-              <span>Guardar ruta</span>
-            </button>
-
-            {/* Mensaje breve al pulsar Guardar ruta */}
-            {saveMessageVisible && (
-              <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-center text-xs text-[#1f5c8b] font-medium">
-                Esta función se activa en la siguiente parte.
-              </div>
+            {/* Botón Principal: "Guardar ruta" o "Guardada ✓" */}
+            {savedItem ? (
+              <button
+                type="button"
+                onClick={() => setIsConfirmRemoveOpen(true)}
+                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#2e7d32] text-white font-bold text-sm shadow-md active:bg-[#256628] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              >
+                <Check className="w-5 h-5 stroke-[2.5]" />
+                <span>Guardada ✓</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleOpenSaveSheet}
+                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              >
+                <Bookmark className="w-5 h-5 text-blue-200" />
+                <span>Guardar ruta</span>
+              </button>
             )}
 
             {/* Botón Secundario: Reportar un problema */}
@@ -375,6 +475,135 @@ export const S4DetalleViaje: React.FC = () => {
 
         </div>
       </main>
+
+      {/* G1: HOJA INFERIOR PARA GUARDAR RUTA */}
+      <BottomSheet
+        isOpen={isSaveSheetOpen}
+        onClose={() => setIsSaveSheetOpen(false)}
+        title="Guardar esta ruta"
+      >
+        {isLimitReached ? (
+          /* Error 4e: Límite de 10 rutas alcanzado */
+          <div className="space-y-4 py-2 text-center">
+            <div className="w-12 h-12 rounded-full bg-amber-100 text-[#b26a00] flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900 leading-snug">
+                Puedes guardar hasta 10 rutas. Elimina una para añadir otra.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSaveSheetOpen(false);
+                navigate('/mis-rutas');
+              }}
+              className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md flex items-center justify-center gap-2"
+            >
+              <span>Ir a Mis rutas</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSaveSubmit} noValidate className="space-y-4">
+            {/* Origen y Destino en solo lectura */}
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Trayecto
+              </span>
+              <p className="text-sm font-bold text-slate-900 leading-snug">
+                {originName} a {destName}
+              </p>
+              <p className="text-xs text-[#1f5c8b] font-semibold">
+                {matchedOption.code}
+              </p>
+            </div>
+
+            {/* Campo Nombre */}
+            <div className="text-left">
+              <label htmlFor="input-save-name" className="block text-sm font-bold text-slate-800 mb-1.5">
+                Nombre de la ruta
+              </label>
+              <input
+                id="input-save-name"
+                type="text"
+                value={customName}
+                onChange={(e) => {
+                  setCustomName(e.target.value);
+                  setNameError(null);
+                }}
+                placeholder={`${originName} a ${destName}`}
+                className={`w-full min-h-[48px] px-3.5 py-3 rounded-xl border text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none transition-colors ${
+                  nameError
+                    ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c]'
+                    : 'border-slate-300 focus:border-[#1f5c8b]'
+                }`}
+              />
+
+              {/* Error 4c: Nombre repetido */}
+              {nameError && (
+                <div className="mt-1.5 text-xs text-[#b3382c] flex items-center gap-1.5 font-semibold">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{nameError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Línea de Atajos: Casa, Trabajo, Estudio (mínimo 40 px) */}
+            <div className="text-left pt-1">
+              <span className="text-xs font-semibold text-slate-600 mb-2 block">
+                Atajos:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {SHORTCUT_NAMES.map((shortcut) => (
+                  <button
+                    key={shortcut}
+                    type="button"
+                    onClick={() => {
+                      setCustomName(shortcut);
+                      setNameError(null);
+                    }}
+                    className="touch-target min-h-[40px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-blue-100 text-slate-800 text-xs font-bold border border-slate-200 transition-colors"
+                  >
+                    {shortcut}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Botones Guardar y Cancelar (48 px) */}
+            <div className="pt-2 space-y-2">
+              <button
+                type="submit"
+                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              >
+                <span>Guardar</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSaveSheetOpen(false)}
+                className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm active:bg-slate-50 transition-all flex items-center justify-center"
+              >
+                <span>Cancelar</span>
+              </button>
+            </div>
+          </form>
+        )}
+      </BottomSheet>
+
+      {/* DIÁLOGO CONFIRMAR QUITAR RUTA DE MIS RUTAS */}
+      <ConfirmDialog
+        isOpen={isConfirmRemoveOpen}
+        onClose={() => setIsConfirmRemoveOpen(false)}
+        onConfirm={handleConfirmRemove}
+        title="¿Quitar esta ruta de Mis rutas?"
+        message="Podrás volver a guardarla cuando quieras desde los resultados de búsqueda."
+        confirmText="Quitar"
+        cancelText="Cancelar"
+        isDestructive={true}
+      />
 
       <BottomTabBar />
     </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
-import { KNOWN_PLACES, Place, AlertReport } from '../data/mockData';
+import { KNOWN_PLACES, Place, AlertReport, MOCK_JOURNEYS } from '../data/mockData';
 import { addAlert, addConfirmation, findRecentAlert } from '../utils/alerts';
 import {
   AlertCircle,
@@ -62,13 +62,15 @@ export const R2DetallesReporte: React.FC = () => {
 
   const typeTitle = TYPE_NAMES[t] || 'Detalles del reporte';
 
-  // Preselección de ruta según r
+  // Preselección de ruta según r buscando en MOCK_JOURNEYS
   const getInitialRoute = (): string => {
     if (!r) return '';
-    const lowerR = r.toLowerCase();
-    if (lowerR.includes('26')) return 'Ruta 26';
-    if (lowerR.includes('101')) return 'Ruta 101-D';
-    if (lowerR.includes('125')) return 'Ruta 125';
+    for (const journey of MOCK_JOURNEYS) {
+      const found = journey.options.find((opt) => opt.id === r);
+      if (found) {
+        return found.code.replace(/\s+con combinación$/i, '').trim();
+      }
+    }
     return '';
   };
 
@@ -128,12 +130,11 @@ export const R2DetallesReporte: React.FC = () => {
   const createAndSubmitAlert = () => {
     // Generar descripción combinada
     let desc = typeTitle;
-    if (reference.trim() && comment.trim()) {
-      desc = `${typeTitle} frente a ${reference.trim()}: ${comment.trim()}`;
-    } else if (reference.trim()) {
-      desc = `${typeTitle} frente a ${reference.trim()}`;
-    } else if (comment.trim()) {
-      desc = `${typeTitle}: ${comment.trim()}`;
+    if (reference.trim()) {
+      desc += `. Referencia: ${reference.trim()}`;
+    }
+    if (comment.trim()) {
+      desc += `. ${comment.trim()}`;
     }
 
     const newAlert: AlertReport = {
