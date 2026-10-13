@@ -23,6 +23,17 @@ export const S1Inicio: React.FC = () => {
   const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [alertDismissed, setAlertDismissed] = useState(false);
+  const [showBrowserInstallCard, setShowBrowserInstallCard] = useState(false);
+
+  const handleInstallClick = () => {
+    if (isInstallable) {
+      install();
+    } else if (isIOS) {
+      setShowIOSModal(true);
+    } else {
+      setShowBrowserInstallCard(true);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#f5f7fa]">
@@ -33,18 +44,9 @@ export const S1Inicio: React.FC = () => {
         rightAction={
           !isInstalled && (
             <button
-              onClick={() => {
-                if (isInstallable) {
-                  install();
-                } else if (isIOS) {
-                  setShowIOSModal(true);
-                } else {
-                  // Direct tip
-                  alert('Para instalar RUTEA, abre las opciones de tu navegador y pulsa "Agregar a pantalla de inicio".');
-                }
-              }}
+              onClick={handleInstallClick}
               type="button"
-              aria-label="Instalar app"
+              aria-label="Instalar aplicación"
               className="touch-target flex items-center justify-center text-white active:bg-white/20 rounded-full"
             >
               <Download className="w-5 h-5" />
@@ -56,6 +58,36 @@ export const S1Inicio: React.FC = () => {
       {/* Main scrollable body */}
       <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         
+        {/* Mensaje pequeño de instalación en el navegador (sustituto del alert) */}
+        {showBrowserInstallCard && (
+          <aside
+            aria-label="Instrucciones para instalar"
+            className="rounded-2xl bg-blue-50 border border-blue-200 p-3.5 shadow-sm relative text-slate-800"
+          >
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-blue-100 text-[#1f5c8b] shrink-0 mt-0.5">
+                <Info className="w-5 h-5" />
+              </div>
+              <div className="flex-1 pr-6">
+                <p className="text-sm font-semibold text-[#1f5c8b] leading-tight">
+                  Instalar RUTEA
+                </p>
+                <p className="text-xs text-slate-700 mt-1 leading-snug">
+                  Para instalar RUTEA, abre las opciones de tu navegador y pulsa "Agregar a pantalla de inicio".
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBrowserInstallCard(false)}
+                aria-label="Cerrar mensaje"
+                className="absolute top-2.5 right-2.5 text-slate-400 active:text-slate-700 p-1 rounded-md"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </aside>
+        )}
+
         {/* Aviso reciente simulado inicial */}
         {!alertDismissed && (
           <aside
@@ -99,23 +131,23 @@ export const S1Inicio: React.FC = () => {
           </aside>
         )}
 
-        {/* Banner de Bienvenida / Saludo salvadoreño */}
+        {/* Banner de Bienvenida con tuteo salvadoreño */}
         <section className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <div className="flex items-center gap-2 text-xs font-semibold text-[#1f5c8b] mb-1">
             <span className="w-2 h-2 rounded-full bg-[#1f5c8b]" />
             <span>Moviéndote en El Salvador</span>
           </div>
           <h2 className="text-lg font-bold text-slate-900 leading-snug">
-            Planificá tu viaje en bus o microbús sin complicarte
+            Planifica tu viaje en bus o microbús sin complicarte
           </h2>
           <p className="text-xs text-slate-600 mt-1">
-            Consultá rutas, paradas y tiempos estimados con información clara.
+            Consulta rutas, paradas y tiempos estimados con información clara.
           </p>
         </section>
 
-        {/* 3 BOTONES PRINCIPALES (Requeridos específicamente por la especificación de S1) */}
+        {/* 3 BOTONES PRINCIPALES (Sin etiquetas técnicas S2, G2, R1; con subtítulos requeridos) */}
         <section className="space-y-3" aria-label="Acciones principales">
-          {/* Botón 1: "¿A dónde vas?" -> Lleva a S2 */}
+          {/* Botón 1: "¿A dónde vas?" -> Lleva a S2 Buscar ruta */}
           <button
             type="button"
             onClick={() => navigate('/buscar')}
@@ -130,14 +162,14 @@ export const S1Inicio: React.FC = () => {
                   ¿A dónde vas?
                 </span>
                 <span className="block text-xs text-blue-100 font-normal mt-0.5">
-                  Buscar rutas y conexiones (S2)
+                  Buscar rutas y conexiones
                 </span>
               </div>
             </div>
             <ChevronRight className="w-6 h-6 text-white/80 shrink-0" />
           </button>
 
-          {/* Botón 2: "Mis rutas guardadas" -> Lleva a pestaña Mis rutas (G2) */}
+          {/* Botón 2: "Mis rutas guardadas" -> Lleva a pestaña Mis rutas */}
           <button
             type="button"
             onClick={() => navigate('/mis-rutas')}
@@ -152,14 +184,14 @@ export const S1Inicio: React.FC = () => {
                   Mis rutas guardadas
                 </span>
                 <span className="block text-xs text-slate-500 font-normal mt-0.5">
-                  Tus trayectos frecuentes (G2)
+                  Tus viajes frecuentes
                 </span>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
           </button>
 
-          {/* Botón 3: "Reportar un problema" -> Lleva a R1 */}
+          {/* Botón 3: "Reportar un problema" -> Lleva a Reporte */}
           <button
             type="button"
             onClick={() => navigate('/reporte/tipo')}
@@ -174,7 +206,7 @@ export const S1Inicio: React.FC = () => {
                   Reportar un problema
                 </span>
                 <span className="block text-xs text-slate-500 font-normal mt-0.5">
-                  Avisar sobre parada o desvío (R1)
+                  Avisar sobre una parada o un desvío
                 </span>
               </div>
             </div>
@@ -182,12 +214,12 @@ export const S1Inicio: React.FC = () => {
           </button>
         </section>
 
-        {/* Mapa estático de ejemplo (Requisito: "La pestaña/sección Mapa será una imagen estática de ejemplo") */}
+        {/* Mapa estático de ejemplo (Sin la palabra "(Estático)" en el título) */}
         <section className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200">
           <div className="flex items-center justify-between mb-2 px-1">
             <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[#1f5c8b]" />
-              Esquema de red metropolitana (Estático)
+              Esquema de red metropolitana
             </span>
             <span className="text-[11px] text-slate-500">Ejemplo ilustrativo</span>
           </div>
@@ -222,7 +254,7 @@ export const S1Inicio: React.FC = () => {
             </svg>
 
             <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-xs text-[10px] text-slate-700 px-2 py-0.5 rounded shadow-xs border border-slate-200">
-              Mapa estático de prueba
+              Mapa de prueba
             </div>
           </div>
         </section>
@@ -236,7 +268,7 @@ export const S1Inicio: React.FC = () => {
           <span className="font-semibold text-slate-800">{DATA_LAST_UPDATED}</span>
         </section>
 
-        {/* PIE DE PÁGINA (Requerido expresamente: "Muestra siempre, en texto pequeño al pie de la pantalla de inicio: 'Prototipo con datos ilustrativos de prueba'") */}
+        {/* PIE DE PÁGINA */}
         <footer className="pt-2 pb-6 text-center">
           <p className="text-xs text-slate-500 font-medium">
             Prototipo con datos ilustrativos de prueba

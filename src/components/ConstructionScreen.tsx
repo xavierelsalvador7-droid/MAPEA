@@ -16,6 +16,7 @@ interface ConstructionScreenProps {
   description?: string;
   nextLinks?: QuickLink[];
   backFallback?: string;
+  children?: React.ReactNode;
 }
 
 export const ConstructionScreen: React.FC<ConstructionScreenProps> = ({
@@ -24,6 +25,7 @@ export const ConstructionScreen: React.FC<ConstructionScreenProps> = ({
   description,
   nextLinks,
   backFallback = '/',
+  children,
 }) => {
   const navigate = useNavigate();
 
@@ -55,6 +57,12 @@ export const ConstructionScreen: React.FC<ConstructionScreenProps> = ({
             <p className="text-sm text-slate-600 max-w-xs mt-2 leading-relaxed">
               {description}
             </p>
+          )}
+
+          {children && (
+            <div className="w-full mt-4">
+              {children}
+            </div>
           )}
         </div>
 
