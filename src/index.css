@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #1f5c8b;
+  --color-success: #2e7d32;
+  --color-warning: #b26a00;
+  --color-warning-bg: #fff4cc;
+  --color-warning-border: #e0b400;
+  --color-error: #b3382c;
+  --color-bg-light: #f5f7fa;
+}
+
+/* Safe area support for iOS / Android gestures & notch */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-top-h {
+  height: env(safe-area-inset-top, 0px);
+}
+.safe-bottom-h {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+/* Base mobile typography & interaction */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-size: 16px;
+  background-color: #f1f5f9;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Ensure inputs never zoom on iOS */
+input, select, textarea {
+  font-size: 16px !important;
+  user-select: text;
+}
+
+/* Touch target minimum 48px */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}

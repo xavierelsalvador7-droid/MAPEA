@@ -1,0 +1,6 @@
+{
+  "name": "RUTEA - Transporte Público SV",
+  "description": "Prototipo de aplicación móvil para planificar viajes en transporte público en El Salvador.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
