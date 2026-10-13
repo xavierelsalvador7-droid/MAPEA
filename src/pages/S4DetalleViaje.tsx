@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
-import { MOCK_JOURNEYS, KNOWN_PLACES, RouteOption } from '../data/mockData';
-import { getAlertsForRoute } from '../utils/alerts';
+import { MOCK_JOURNEYS, KNOWN_PLACES, RouteOption, INITIAL_ALERT } from '../data/mockData';
+import { getAlertsForRoute, getTimeAgoText, formatAlertDateTime } from '../utils/alerts';
 import {
   AlertTriangle,
   Bookmark,
   Flag,
-  MapPin,
-  Clock,
   Compass,
-  ArrowLeft,
-  Navigation
 } from 'lucide-react';
 
 function formatDuration(text: string): string {
   const clean = text.replace(/^aprox\.?\s*/i, '').trim();
   return `aprox. ${clean}`;
 }
+
+const ACTION_CONFIG: Record<string, { label: string; badgeStyle: string }> = {
+  sube: { label: 'SUBE', badgeStyle: 'bg-blue-100 text-[#1f5c8b] border-blue-200' },
+  viaja: { label: 'VIAJA', badgeStyle: 'bg-emerald-100 text-[#2e7d32] border-emerald-200' },
+  transborda: { label: 'TRANSBORDA', badgeStyle: 'bg-amber-100 text-[#b26a00] border-amber-200' },
+  bajate: { label: 'BÁJATE', badgeStyle: 'bg-slate-100 text-slate-700 border-slate-300' },
+};
 
 export const S4DetalleViaje: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -115,6 +118,7 @@ export const S4DetalleViaje: React.FC = () => {
   // Avisos recientes de la ruta
   const alerts = getAlertsForRoute(matchedOption.code);
   const latestAlert = alerts.length > 0 ? alerts[0] : null;
+  const extraAlerts = alerts.length - 1;
 
   // Pasos de la ruta
   const steps = matchedOption.steps || [];
@@ -150,13 +154,38 @@ export const S4DetalleViaje: React.FC = () => {
             >
               <div className="flex items-start gap-2.5">
                 <AlertTriangle className="w-5 h-5 text-[#b26a00] shrink-0 mt-0.5" />
-                <div className="text-xs leading-snug">
-                  <span className="font-bold text-[#b26a00] mr-1">
-                    Aviso {latestAlert.reportedTimeAgo}:
-                  </span>
-                  <span className="font-medium text-slate-900">
-                    {latestAlert.description}
-                  </span>
+                <div className="text-xs leading-snug flex-1">
+                  <div className="flex items-center justify-between gap-1 flex-wrap mb-1">
+                    <span className="font-bold text-[#b26a00]">
+                      Reportado por usuarios, {getTimeAgoText(latestAlert)}
+                    </span>
+                    {extraAlerts > 0 && (
+                      <span className="text-[10px] font-bold text-[#b26a00] bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">
+                        +{extraAlerts} aviso{extraAlerts > 1 ? 's' : ''} más
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="font-medium text-slate-900 text-sm leading-snug">
+                    {latestAlert.description || (
+                      <>
+                        {latestAlert.type}
+                        {latestAlert.reference ? `: ${latestAlert.reference}` : ''}
+                        {latestAlert.comment ? ` (${latestAlert.comment})` : ''}
+                      </>
+                    )}
+                  </p>
+
+                  <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-amber-200/70 text-[11px] text-slate-600">
+                    <span>
+                      Confirmado por {latestAlert.confirmations} persona{latestAlert.confirmations !== 1 ? 's' : ''}
+                    </span>
+                    {latestAlert.id !== INITIAL_ALERT.id && latestAlert.timestamp && (
+                      <span className="text-slate-500">
+                        {formatAlertDateTime(latestAlert.timestamp)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </aside>
@@ -198,36 +227,10 @@ export const S4DetalleViaje: React.FC = () => {
             <section aria-label="Instrucciones paso a paso" className="space-y-3">
               <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm divide-y divide-slate-100">
                 {steps.map((step, idx) => {
-                  const norm = step.instruction.toLowerCase().trim();
-                  
-                  // Verbo de acción
-                  let actionBadge = 'SUBE';
-                  let badgeStyle = 'bg-blue-100 text-[#1f5c8b] border-blue-200';
-
-                  if (norm.startsWith('viaja')) {
-                    actionBadge = 'VIAJA';
-                    badgeStyle = 'bg-emerald-100 text-[#2e7d32] border-emerald-200';
-                  } else if (norm.startsWith('transborda') || norm.startsWith('cambia')) {
-                    actionBadge = 'TRANSBORDA';
-                    badgeStyle = 'bg-amber-100 text-[#b26a00] border-amber-200';
-                  } else if (norm.startsWith('bájate') || norm.startsWith('bajate') || norm.startsWith('llega')) {
-                    actionBadge = 'BÁJATE';
-                    badgeStyle = 'bg-slate-100 text-slate-700 border-slate-300';
-                  }
-
-                  // Extracción de la referencia principal (grande) y técnica (pequeña)
-                  let reference = step.instruction;
-                  let isViaja = actionBadge === 'VIAJA';
-
-                  if (isViaja) {
-                    // En el paso VIAJA muestra el tiempo "aprox. 40 min" y en pequeño el detalle
-                    const matchTime = step.instruction.match(/viaja\s+(aprox\.?\s*[^,]+)/i);
-                    reference = matchTime ? matchTime[1] : step.instruction;
-                  } else {
-                    // Quitar el verbo inicial para resaltar la referencia conocida
-                    const stripped = step.instruction.replace(/^(sube|aborda\s+la\s+unidad\s+en\s+la|aborda|toma\s+unidad\s+de\s+enlace\s+hacia|toma|transborda\s+a\s+la|transborda|bájate|bajate|llega\s+al|llega\s+a)\s+/i, '');
-                    reference = stripped.charAt(0).toUpperCase() + stripped.slice(1);
-                  }
+                  const actionKey = step.action || 'sube';
+                  const actionConfig = ACTION_CONFIG[actionKey] || ACTION_CONFIG.sube;
+                  const isViaja = actionKey === 'viaja';
+                  const referenceText = step.reference || step.instruction;
 
                   return (
                     <div key={step.order || idx} className="py-3.5 first:pt-1 last:pb-1 flex items-start gap-3">
@@ -237,16 +240,16 @@ export const S4DetalleViaje: React.FC = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        {/* Etiqueta de acción */}
+                        {/* Etiqueta de acción directamente de action */}
                         <div className="mb-1">
-                          <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider ${badgeStyle}`}>
-                            {actionBadge}
+                          <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider ${actionConfig.badgeStyle}`}>
+                            {actionConfig.label}
                           </span>
                         </div>
 
                         {/* Lugar de referencia en letra grande y legible */}
                         <p className="text-base font-bold text-slate-900 leading-snug">
-                          {reference}
+                          {referenceText}
                         </p>
 
                         {/* En el paso VIAJA: detalle en pequeño */}
@@ -354,7 +357,7 @@ export const S4DetalleViaje: React.FC = () => {
 
             {/* Mensaje breve al pulsar Guardar ruta */}
             {saveMessageVisible && (
-              <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-center text-xs text-[#1f5c8b] font-medium animate-fadeIn">
+              <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-center text-xs text-[#1f5c8b] font-medium">
                 Esta función se activa en la siguiente parte.
               </div>
             )}

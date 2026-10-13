@@ -16,6 +16,7 @@ import {
 import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
 import { INITIAL_ALERT, DATA_LAST_UPDATED } from '../data/mockData';
+import { getTimeAgoText } from '../utils/alerts';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 
 export const S1Inicio: React.FC = () => {
@@ -123,7 +124,7 @@ export const S1Inicio: React.FC = () => {
                 <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-600">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {INITIAL_ALERT.reportedTimeAgo}
+                    {getTimeAgoText(INITIAL_ALERT)}
                   </span>
                   <span>•</span>
                   <span>{INITIAL_ALERT.source}</span>

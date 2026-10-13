@@ -8,7 +8,7 @@ import {
   DATA_LAST_UPDATED,
   RouteOption,
 } from '../data/mockData';
-import { getAlertsForRoute } from '../utils/alerts';
+import { getAlertsForRoute, getTimeAgoText } from '../utils/alerts';
 import {
   ChevronRight,
   Clock,
@@ -157,7 +157,7 @@ export const S3Resultados: React.FC = () => {
                       <div className="w-full bg-[#fff4cc] border border-[#e0b400] rounded-xl px-2.5 py-1.5 flex items-center gap-2 text-xs text-slate-800">
                         <AlertTriangle className="w-4 h-4 text-[#b26a00] shrink-0" />
                         <span className="font-semibold text-[11px] text-[#b26a00] leading-tight">
-                          Aviso {latestAlert.reportedTimeAgo}
+                          Aviso de usuarios, {getTimeAgoText(latestAlert)}
                           {extraAlerts > 0 && ` · +${extraAlerts} aviso${extraAlerts > 1 ? 's' : ''} más`}
                         </span>
                       </div>

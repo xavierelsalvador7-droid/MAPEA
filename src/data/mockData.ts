@@ -15,6 +15,8 @@ export interface RouteOption {
   steps?: {
     order: number;
     instruction: string;
+    action?: 'sube' | 'viaja' | 'transborda' | 'bajate';
+    reference?: string;
     stopName?: string;
     details?: string;
   }[];
@@ -30,10 +32,14 @@ export interface AlertReport {
   id: string;
   routeCode: string;
   type: string; // "Cambió la parada", etc.
+  typeKey: string; // 'cambio-recorrido' | 'ruta-no-pasa' | 'cambio-parada' | 'retraso-desvio' | 'dato-incorrecto' | string
   description: string;
+  reference?: string;
+  comment?: string;
   source: string;
   reportedTimeAgo: string;
   timestamp: string;
+  confirmations: number;
 }
 
 export const DATA_LAST_UPDATED = '10 de octubre de 2026';
@@ -65,17 +71,23 @@ export const MOCK_JOURNEYS: JourneyResult[] = [
           {
             order: 1,
             instruction: 'Sube frente a la Alcaldía de Mejicanos',
+            action: 'sube',
+            reference: 'Frente a la Alcaldía de Mejicanos',
             stopName: 'Alcaldía',
             details: 'Parada frente al parque municipal de Mejicanos',
           },
           {
             order: 2,
             instruction: 'Viaja aprox. 40 min',
+            action: 'viaja',
+            reference: 'aprox. 40 min',
             details: 'Recorrido por Calle Zacamil y Centro Histórico',
           },
           {
             order: 3,
             instruction: 'Bájate frente a Plaza Libertad',
+            action: 'bajate',
+            reference: 'Frente a Plaza Libertad',
             stopName: 'Plaza Libertad',
             details: 'Parada designada Centro Histórico de San Salvador',
           },
@@ -92,16 +104,22 @@ export const MOCK_JOURNEYS: JourneyResult[] = [
           {
             order: 1,
             instruction: 'Toma unidad de enlace hacia punto de conexión',
+            action: 'sube',
+            reference: 'Unidad de enlace hacia el punto de conexión',
             stopName: 'Enlace Zacamil',
           },
           {
             order: 2,
             instruction: 'Transborda a la Ruta 101-D',
+            action: 'transborda',
+            reference: 'A la Ruta 101-D',
             stopName: 'Parada de combinación',
           },
           {
             order: 3,
             instruction: 'Bájate en Plaza Libertad',
+            action: 'bajate',
+            reference: 'En Plaza Libertad',
             stopName: 'Plaza Libertad',
           },
         ],
@@ -123,15 +141,22 @@ export const MOCK_JOURNEYS: JourneyResult[] = [
           {
             order: 1,
             instruction: 'Sube en Parque Central de Santa Tecla',
+            action: 'sube',
+            reference: 'En el Parque Central de Santa Tecla',
             stopName: 'Parque San Martín / Central',
           },
           {
             order: 2,
             instruction: 'Viaja aprox. 35 min por Alameda Manuel Enrique Araujo y Alameda Roosevelt',
+            action: 'viaja',
+            reference: 'aprox. 35 min',
+            details: 'Por Alameda Manuel Enrique Araujo y Alameda Roosevelt',
           },
           {
             order: 3,
             instruction: 'Bájate frente a Plaza Libertad',
+            action: 'bajate',
+            reference: 'Frente a Plaza Libertad',
             stopName: 'Plaza Libertad',
           },
         ],
@@ -153,15 +178,22 @@ export const MOCK_JOURNEYS: JourneyResult[] = [
           {
             order: 1,
             instruction: 'Aborda la unidad en la Terminal de Occidente',
+            action: 'sube',
+            reference: 'En la Terminal de Occidente',
             stopName: 'Terminal de Occidente',
           },
           {
             order: 2,
             instruction: 'Viaja aprox. 1 h 30 min por Carretera Troncal del Norte hacia Chalatenango',
+            action: 'viaja',
+            reference: 'aprox. 1 h 30 min',
+            details: 'Por la Carretera Troncal del Norte hacia Chalatenango',
           },
           {
             order: 3,
             instruction: 'Llega al Parque Central de Chalatenango',
+            action: 'bajate',
+            reference: 'En el Parque Central de Chalatenango',
             stopName: 'Parque Central de Chalatenango',
           },
         ],
@@ -174,8 +206,10 @@ export const INITIAL_ALERT: AlertReport = {
   id: 'alert-001',
   routeCode: 'Ruta 26',
   type: 'Cambió la parada',
+  typeKey: 'cambio-parada',
   description: 'Cambió la parada frente a la Alcaldía de Mejicanos',
   source: 'Reportado por usuarios',
   reportedTimeAgo: 'hace 25 minutos',
   timestamp: '2026-10-10T11:45:00Z',
+  confirmations: 1,
 };
