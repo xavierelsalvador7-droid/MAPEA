@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -24,6 +24,16 @@ export const S1Inicio: React.FC = () => {
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [showBrowserInstallCard, setShowBrowserInstallCard] = useState(false);
+
+  // Al entrar a S1 (Inicio) borra las claves de sessionStorage para búsqueda nueva
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem('rutea_s2_origin');
+      sessionStorage.removeItem('rutea_s2_dest');
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const handleInstallClick = () => {
     if (isInstallable) {
