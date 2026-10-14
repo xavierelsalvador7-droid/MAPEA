@@ -28,7 +28,9 @@ import {
   Compass,
   Check,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 
 function formatDuration(text: string): string {
@@ -53,7 +55,7 @@ export const S4DetalleViaje: React.FC = () => {
   const destId = searchParams.get('d') || '';
   const optionId = searchParams.get('r') || '';
 
-  const [activeTab, setActiveTab] = useState<'pasos' | 'mapa'>('pasos');
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   // Estados para guardar y quitar ruta
   const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
@@ -279,157 +281,141 @@ export const S4DetalleViaje: React.FC = () => {
             </aside>
           )}
 
-          {/* Selector de pestañas: "Pasos" y "Mapa" (Altura mínima 48 px) */}
-          <div className="bg-slate-200/80 p-1 rounded-xl flex items-center" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'pasos'}
-              onClick={() => setActiveTab('pasos')}
-              className={`flex-1 touch-target min-h-[48px] py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === 'pasos'
-                  ? 'bg-white text-[#1f5c8b] shadow-sm'
-                  : 'text-slate-600 active:text-slate-900'
-              }`}
-            >
-              <span>Pasos</span>
-            </button>
+          {/* 2. MAPA ILUSTRATIVO (160 px por defecto, ampliable a 320 px) */}
+          <section aria-label="Mapa ilustrativo" className="space-y-2">
+            <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex flex-col items-center">
+              {/* SVG Ilustrativo del recorrido */}
+              <div className={`relative w-full ${isMapExpanded ? 'h-[320px]' : 'h-[160px]'} bg-slate-50 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center transition-[height] duration-300 ease-in-out`}>
+                <svg viewBox="0 0 340 220" className="w-full h-full object-cover">
+                  <rect width="340" height="220" fill="#f8fafc" />
+                  
+                  {/* Cuadrícula suave de referencia */}
+                  <path d="M 0 55 L 340 55 M 0 110 L 340 110 M 0 165 L 340 165" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
+                  <path d="M 85 0 L 85 220 M 170 0 L 170 220 M 255 0 L 255 220" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
 
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'mapa'}
-              onClick={() => setActiveTab('mapa')}
-              className={`flex-1 touch-target min-h-[48px] py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                activeTab === 'mapa'
-                  ? 'bg-white text-[#1f5c8b] shadow-sm'
-                  : 'text-slate-600 active:text-slate-900'
-              }`}
-            >
-              <span>Mapa</span>
-            </button>
-          </div>
+                  {/* Sombra de la ruta */}
+                  <path
+                    d="M 50 160 C 110 160, 140 70, 290 70"
+                    fill="none"
+                    stroke="#cbd5e1"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                  />
 
-          {/* CONTENIDO PESTAÑA: PASOS */}
-          {activeTab === 'pasos' && (
-            <section aria-label="Instrucciones paso a paso" className="space-y-3">
-              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm divide-y divide-slate-100">
-                {steps.map((step, idx) => {
-                  const actionKey = step.action || 'sube';
-                  const actionConfig = ACTION_CONFIG[actionKey] || ACTION_CONFIG.sube;
-                  const isViaja = actionKey === 'viaja';
-                  const referenceText = step.reference || step.instruction;
+                  {/* Línea principal de transporte */}
+                  <path
+                    d="M 50 160 C 110 160, 140 70, 290 70"
+                    fill="none"
+                    stroke="#1f5c8b"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                  />
 
-                  return (
-                    <div key={step.order || idx} className="py-3.5 first:pt-1 last:pb-1 flex items-start gap-3">
-                      {/* Número circular de orden */}
-                      <div className="w-7 h-7 rounded-full bg-[#1f5c8b] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                        {step.order || idx + 1}
-                      </div>
+                  {/* Punto de Origen */}
+                  <circle cx="50" cy="160" r="8" fill="#1f5c8b" />
+                  <circle cx="50" cy="160" r="4" fill="#ffffff" />
+                  <rect x="15" y="176" width="100" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
+                  <text x="65" y="193" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
+                    {originName ? (originName.length > 14 ? originName.slice(0, 14) + '...' : originName) : 'Origen'}
+                  </text>
 
-                      <div className="flex-1 min-w-0">
-                        {/* Etiqueta de acción directamente de action */}
-                        <div className="mb-1">
-                          <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider ${actionConfig.badgeStyle}`}>
-                            {actionConfig.label}
-                          </span>
-                        </div>
+                  {/* Punto intermedio con badge de ruta */}
+                  <circle cx="170" cy="115" r="5" fill="#e0b400" stroke="#ffffff" strokeWidth="2" />
+                  <rect x="135" y="90" width="70" height="18" rx="4" fill="#1f5c8b" />
+                  <text x="170" y="103" fontSize="9" fontWeight="bold" fill="#ffffff" textAnchor="middle">
+                    {matchedOption.code}
+                  </text>
 
-                        {/* Lugar de referencia en letra grande y legible */}
-                        <p className="text-base font-bold text-slate-900 leading-snug">
-                          {referenceText}
-                        </p>
+                  {/* Punto de Destino */}
+                  <circle cx="290" cy="70" r="8" fill="#2e7d32" />
+                  <circle cx="290" cy="70" r="4" fill="#ffffff" />
+                  <rect x="225" y="24" width="105" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
+                  <text x="277" y="41" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
+                    {destName ? (destName.length > 15 ? destName.slice(0, 15) + '...' : destName) : 'Destino'}
+                  </text>
+                </svg>
+              </div>
 
-                        {/* En el paso VIAJA: detalle en pequeño */}
-                        {isViaja && step.details && (
-                          <p className="text-xs text-slate-500 mt-0.5 leading-snug">
-                            {step.details}
-                          </p>
-                        )}
+              {/* Leyenda requerida: "Mapa ilustrativo. No muestra tu ubicación ni tiempo real." */}
+              <p className="text-xs text-slate-500 font-medium text-center mt-2.5 leading-normal">
+                Mapa ilustrativo. No muestra tu ubicación ni tiempo real.
+              </p>
 
-                        {/* En otros pasos: Parada técnica en pequeño si existe */}
-                        {!isViaja && step.stopName && (
-                          <p className="text-xs text-slate-500 mt-0.5 leading-snug font-medium">
-                            Parada: <span className="text-slate-600">{step.stopName}</span>
-                          </p>
-                        )}
+              {/* Botón "Ampliar mapa" / "Reducir mapa" (mínimo 48 px de alto táctil) */}
+              <button
+                type="button"
+                onClick={() => setIsMapExpanded(!isMapExpanded)}
+                className="mt-3 w-full touch-target min-h-[48px] py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-xs border border-slate-200 transition-colors flex items-center justify-center gap-2"
+              >
+                {isMapExpanded ? (
+                  <>
+                    <Minimize2 className="w-4 h-4 text-[#1f5c8b]" />
+                    <span>Reducir mapa</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-4 h-4 text-[#1f5c8b]" />
+                    <span>Ampliar mapa</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
 
-                        {!isViaja && step.details && (
-                          <p className="text-[11px] text-slate-400 mt-0.5 leading-tight">
-                            {step.details}
-                          </p>
-                        )}
-                      </div>
+          {/* 3. LISTA DE PASOS */}
+          <section aria-label="Instrucciones paso a paso" className="space-y-3">
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm divide-y divide-slate-100">
+              {steps.map((step, idx) => {
+                const actionKey = step.action || 'sube';
+                const actionConfig = ACTION_CONFIG[actionKey] || ACTION_CONFIG.sube;
+                const isViaja = actionKey === 'viaja';
+                const referenceText = step.reference || step.instruction;
+
+                return (
+                  <div key={step.order || idx} className="py-3.5 first:pt-1 last:pb-1 flex items-start gap-3">
+                    {/* Número circular de orden */}
+                    <div className="w-7 h-7 rounded-full bg-[#1f5c8b] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {step.order || idx + 1}
                     </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
-          {/* CONTENIDO PESTAÑA: MAPA */}
-          {activeTab === 'mapa' && (
-            <section aria-label="Mapa ilustrativo" className="space-y-3">
-              <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col items-center">
-                {/* SVG Ilustrativo del recorrido */}
-                <div className="relative w-full h-56 bg-slate-50 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center">
-                  <svg viewBox="0 0 340 220" className="w-full h-full object-cover">
-                    <rect width="340" height="220" fill="#f8fafc" />
-                    
-                    {/* Cuadrícula suave de referencia */}
-                    <path d="M 0 55 L 340 55 M 0 110 L 340 110 M 0 165 L 340 165" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
-                    <path d="M 85 0 L 85 220 M 170 0 L 170 220 M 255 0 L 255 220" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
+                    <div className="flex-1 min-w-0">
+                      {/* Etiqueta de acción directamente de action */}
+                      <div className="mb-1">
+                        <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider ${actionConfig.badgeStyle}`}>
+                          {actionConfig.label}
+                        </span>
+                      </div>
 
-                    {/* Sombra de la ruta */}
-                    <path
-                      d="M 50 160 C 110 160, 140 70, 290 70"
-                      fill="none"
-                      stroke="#cbd5e1"
-                      strokeWidth="10"
-                      strokeLinecap="round"
-                    />
+                      {/* Lugar de referencia en letra grande y legible */}
+                      <p className="text-base font-bold text-slate-900 leading-snug break-words">
+                        {referenceText}
+                      </p>
 
-                    {/* Línea principal de transporte */}
-                    <path
-                      d="M 50 160 C 110 160, 140 70, 290 70"
-                      fill="none"
-                      stroke="#1f5c8b"
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                    />
+                      {/* En el paso VIAJA: detalle en pequeño */}
+                      {isViaja && step.details && (
+                        <p className="text-xs text-slate-500 mt-0.5 leading-snug break-words">
+                          {step.details}
+                        </p>
+                      )}
 
-                    {/* Punto de Origen */}
-                    <circle cx="50" cy="160" r="8" fill="#1f5c8b" />
-                    <circle cx="50" cy="160" r="4" fill="#ffffff" />
-                    <rect x="15" y="176" width="100" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
-                    <text x="65" y="193" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
-                      {originName ? (originName.length > 14 ? originName.slice(0, 14) + '...' : originName) : 'Origen'}
-                    </text>
+                      {/* En otros pasos: Parada técnica en pequeño si existe */}
+                      {!isViaja && step.stopName && (
+                        <p className="text-xs text-slate-500 mt-0.5 leading-snug font-medium break-words">
+                          Parada: <span className="text-slate-600">{step.stopName}</span>
+                        </p>
+                      )}
 
-                    {/* Punto intermedio con badge de ruta */}
-                    <circle cx="170" cy="115" r="5" fill="#e0b400" stroke="#ffffff" strokeWidth="2" />
-                    <rect x="135" y="90" width="70" height="18" rx="4" fill="#1f5c8b" />
-                    <text x="170" y="103" fontSize="9" fontWeight="bold" fill="#ffffff" textAnchor="middle">
-                      {matchedOption.code}
-                    </text>
-
-                    {/* Punto de Destino */}
-                    <circle cx="290" cy="70" r="8" fill="#2e7d32" />
-                    <circle cx="290" cy="70" r="4" fill="#ffffff" />
-                    <rect x="225" y="24" width="105" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
-                    <text x="277" y="41" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
-                      {destName ? (destName.length > 15 ? destName.slice(0, 15) + '...' : destName) : 'Destino'}
-                    </text>
-                  </svg>
-                </div>
-
-                {/* Leyenda requerida: "Mapa ilustrativo. No muestra tu ubicación ni tiempo real." */}
-                <p className="text-xs text-slate-500 font-medium text-center mt-3 leading-normal">
-                  Mapa ilustrativo. No muestra tu ubicación ni tiempo real.
-                </p>
-              </div>
-            </section>
-          )}
+                      {!isViaja && step.details && (
+                        <p className="text-[11px] text-slate-400 mt-0.5 leading-tight break-words">
+                          {step.details}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
           {/* DOS BOTONES AL FINAL DEL CONTENIDO (No fijos, mínimo 48 px) */}
           <div className="pt-2 pb-6 space-y-2.5">
