@@ -35,12 +35,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         aria-hidden="true"
       />
 
-      {/* Contenedor de la hoja inferior: absolute dentro de la página, max-h-[85dvh] con scroll */}
+      {/* Contenedor de la hoja inferior: absolute dentro de la página, max-h-[85%] con scroll */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title || 'Panel inferior'}
-        className="relative z-10 w-full max-h-[85dvh] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp"
+        className="relative z-10 w-full max-h-[85%] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp"
       >
         {/* Barra superior / Indicador de arrastre */}
         <div className="pt-3 pb-1 px-4 flex items-center justify-between border-b border-slate-100 shrink-0">

@@ -14,6 +14,7 @@ import { R1TipoReporte } from './pages/R1TipoReporte';
 import { R2DetallesReporte } from './pages/R2DetallesReporte';
 import { R3Confirmacion } from './pages/R3Confirmacion';
 import { G2MisRutas } from './pages/G2MisRutas';
+import { Reiniciar } from './pages/Reiniciar';
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
 
           {/* Pestaña Mis rutas */}
           <Route path="/mis-rutas" element={<G2MisRutas />} />
+
+          {/* Ruta para moderador: restablecer datos de prueba */}
+          <Route path="/reiniciar" element={<Reiniciar />} />
 
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />

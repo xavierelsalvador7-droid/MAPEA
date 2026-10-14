@@ -196,12 +196,6 @@ export const G2MisRutas: React.FC = () => {
         ) : (
           /* LISTA DE RUTAS GUARDADAS */
           <div className="space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                Tus rutas ({savedRoutes.length}/10)
-              </span>
-            </div>
-
             <div className="space-y-3" role="list" aria-label="Rutas guardadas">
               {savedRoutes.map((item) => {
                 const originPlace = KNOWN_PLACES.find((p) => p.id === item.originId);
@@ -289,7 +283,7 @@ export const G2MisRutas: React.FC = () => {
                 className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm shadow-xs active:bg-slate-50 transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4 text-[#1f5c8b]" />
-                <span>+ Buscar otra ruta</span>
+                <span>Buscar otra ruta</span>
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { INITIAL_ALERT, DATA_LAST_UPDATED } from '../data/mockData';
 import { getTimeAgoText } from '../utils/alerts';
 import { usePWAInstall } from '../hooks/usePWAInstall';
@@ -25,6 +26,31 @@ export const S1Inicio: React.FC = () => {
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [showBrowserInstallCard, setShowBrowserInstallCard] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetToast, setResetToast] = useState(false);
+  const tapTimestampsRef = useRef<number[]>([]);
+
+  // Detectar si venimos de /reiniciar
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('rutea_reset_notice') === 'true') {
+        sessionStorage.removeItem('rutea_reset_notice');
+        setAlertDismissed(false);
+        setResetToast(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Timer para ocultar el aviso de 3 segundos
+  useEffect(() => {
+    if (!resetToast) return;
+    const timer = setTimeout(() => {
+      setResetToast(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [resetToast]);
 
   // Al entrar a S1 (Inicio) borra las claves de sessionStorage para búsqueda nueva
   useEffect(() => {
@@ -35,6 +61,33 @@ export const S1Inicio: React.FC = () => {
       // ignore
     }
   }, []);
+
+  // Acceso oculto: 5 toques en 3 segundos al pie
+  const handleFooterTap = () => {
+    const now = Date.now();
+    const recent = tapTimestampsRef.current.filter((t) => now - t <= 3000);
+    recent.push(now);
+    tapTimestampsRef.current = recent;
+    if (recent.length >= 5) {
+      tapTimestampsRef.current = [];
+      setShowResetConfirm(true);
+    }
+  };
+
+  const executeReset = () => {
+    try {
+      localStorage.removeItem('rutea_alerts_v1');
+      localStorage.removeItem('rutea_confirmations_v1');
+      localStorage.removeItem('rutea_saved_routes_v2');
+      sessionStorage.removeItem('rutea_s2_origin');
+      sessionStorage.removeItem('rutea_s2_dest');
+    } catch (e) {
+      console.warn('Error al restablecer datos de prueba:', e);
+    }
+    setAlertDismissed(false);
+    setShowResetConfirm(false);
+    setResetToast(true);
+  };
 
   const handleInstallClick = () => {
     if (isInstallable) {
@@ -47,7 +100,7 @@ export const S1Inicio: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="relative flex flex-col h-full bg-[#f5f7fa]">
       {/* Top Bar with brand and subtle applet title */}
       <TopBar
         title="RUTEA"
@@ -65,6 +118,17 @@ export const S1Inicio: React.FC = () => {
           )
         }
       />
+
+      {/* Aviso breve de restablecimiento (3 segundos) */}
+      {resetToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="absolute top-16 left-4 right-4 z-40 bg-slate-900 text-white px-4 py-2.5 rounded-xl text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn"
+        >
+          <span>Datos de prueba restablecidos</span>
+        </div>
+      )}
 
       {/* Main scrollable body */}
       <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
@@ -279,9 +343,12 @@ export const S1Inicio: React.FC = () => {
           <span className="font-semibold text-slate-800">{DATA_LAST_UPDATED}</span>
         </section>
 
-        {/* PIE DE PÁGINA */}
-        <footer className="pt-2 pb-6 text-center">
-          <p className="text-xs text-slate-500 font-medium">
+        {/* PIE DE PÁGINA (Acceso oculto: 5 toques en 3 segundos sin pistas visuales) */}
+        <footer className="pt-2 pb-6 text-center select-none">
+          <p
+            onClick={handleFooterTap}
+            className="text-xs text-slate-500 font-medium cursor-default inline-block"
+          >
             Prototipo con datos ilustrativos de prueba
           </p>
         </footer>
@@ -328,6 +395,18 @@ export const S1Inicio: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Diálogo oculto de confirmación para restablecer datos de prueba */}
+      <ConfirmDialog
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={executeReset}
+        title="¿Restablecer datos de prueba?"
+        message="Se borrarán los reportes, confirmaciones y rutas guardadas de este dispositivo."
+        confirmText="Restablecer"
+        cancelText="Cancelar"
+        isDestructive={true}
+      />
 
       {/* Fixed Bottom Tab Bar */}
       <BottomTabBar />

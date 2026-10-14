@@ -9,7 +9,6 @@ import {
   Search,
   AlertCircle,
   X,
-  ArrowUpDown,
   CornerDownRight
 } from 'lucide-react';
 
@@ -162,20 +161,6 @@ export const S2BuscarRuta: React.FC = () => {
     setDestError(null);
     setDestSimilar([]);
     if (samePlaceError) setSamePlaceError(false);
-  };
-
-  // Intercambiar origen y destino
-  const handleSwap = () => {
-    const tempO = origin;
-    const tempD = destination;
-    setOrigin(tempD);
-    setDestination(tempO);
-    setActiveDropdown(null);
-    setOriginError(null);
-    setDestError(null);
-    setOriginSimilar([]);
-    setDestSimilar([]);
-    setSamePlaceError(false);
   };
 
   // Validación y Búsqueda
@@ -347,19 +332,6 @@ export const S2BuscarRuta: React.FC = () => {
               )}
             </div>
 
-            {/* Botón para intercambiar Origen y Destino */}
-            <div className="flex justify-end -my-1 pr-2">
-              <button
-                type="button"
-                onClick={handleSwap}
-                aria-label="Intercambiar origen y destino"
-                className="touch-target flex items-center gap-1.5 text-xs font-semibold text-[#1f5c8b] active:text-[#18496e] px-2 py-1 rounded-md"
-              >
-                <ArrowUpDown className="w-4 h-4" />
-                <span>Intercambiar</span>
-              </button>
-            </div>
-
             {/* CAMPO DESTINO */}
             <div className="relative">
               <label
@@ -483,16 +455,6 @@ export const S2BuscarRuta: React.FC = () => {
           </div>
 
         </form>
-
-        {/* Guía informativa de lugares de prueba disponibles */}
-        <section className="mt-6 p-3.5 bg-white/70 rounded-xl border border-slate-200 text-xs text-slate-600">
-          <p className="font-bold text-slate-700 mb-1">
-            Lugares de prueba disponibles en el prototipo:
-          </p>
-          <p className="leading-relaxed text-slate-600">
-            Alcaldía de Mejicanos, Plaza Libertad, Salvador del Mundo, Terminal de Occidente, Parque Central de Santa Tecla, Parque Central de Chalatenango, Parque Central de Santiago Nonualco y Chiltiupán.
-          </p>
-        </section>
       </main>
 
       <BottomTabBar />

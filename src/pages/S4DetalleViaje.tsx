@@ -103,14 +103,6 @@ export const S4DetalleViaje: React.FC = () => {
     }
   }
 
-  // Si aún no hay opción pero vino desde G2 como ejemplo general, tomar la primera opción de MOCK_JOURNEYS
-  if (!matchedOption && !optionId && MOCK_JOURNEYS.length > 0) {
-    matchedOption = MOCK_JOURNEYS[0].options[0];
-    const orig = KNOWN_PLACES.find((p) => p.id === MOCK_JOURNEYS[0].originId);
-    const dst = KNOWN_PLACES.find((p) => p.id === MOCK_JOURNEYS[0].destinationId);
-    if (orig) originName = orig.name;
-    if (dst) destName = dst.name;
-  }
 
   // Estado de ruta guardada sincronizado
   const [savedItem, setSavedItem] = useState<SavedRoute | undefined>(() => {
