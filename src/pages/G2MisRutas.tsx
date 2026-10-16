@@ -158,12 +158,12 @@ export const G2MisRutas: React.FC = () => {
   };
 
   return (
-    <div className="relative flex flex-col h-full bg-[#f5f7fa]">
+    <div className="relative flex flex-col h-full bg-white">
       <TopBar title="Mis rutas" showBack={false} />
 
       {/* Toast informativo */}
       {toastMessage && (
-        <div className="absolute top-16 left-4 right-4 z-40 bg-slate-900 text-white px-4 py-2.5 rounded-xl text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn">
+        <div className="absolute top-16 left-4 right-4 z-40 bg-[#0B1B3F] text-white px-4 py-3 rounded-[22px] text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn">
           <span>{toastMessage}</span>
         </div>
       )}
@@ -172,24 +172,24 @@ export const G2MisRutas: React.FC = () => {
         {/* ESTADO VACÍO (4a) */}
         {savedRoutes.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1f5c8b] mb-4 shadow-xs">
-              <Bookmark className="w-8 h-8" />
+            <div className="w-16 h-16 rounded-[16px] bg-[#E4EBFD] text-[#1F4BD8] flex items-center justify-center mb-4">
+              <Bookmark className="w-8 h-8 stroke-[2.25]" />
             </div>
 
-            <h2 className="text-base font-bold text-slate-800 mb-2 leading-snug">
+            <h2 className="text-[20px] font-bold text-[#0B1B3F] mb-2 leading-snug">
               Aquí aparecerán tus viajes de siempre
             </h2>
 
-            <p className="text-xs text-slate-500 max-w-xs mb-6 leading-relaxed">
+            <p className="text-[13px] text-[#5B6B8C] max-w-xs mb-6 leading-relaxed">
               Guarda tus rutas frecuentes para consultarlas rápidamente con un solo toque.
             </p>
 
             <button
               type="button"
               onClick={handleOpenSearchNew}
-              className="w-full max-w-xs touch-target min-h-[48px] px-6 py-3.5 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] transition-all flex items-center justify-center gap-2"
+              className="w-full max-w-xs touch-target min-h-[48px] px-6 py-3.5 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 transition-all flex items-center justify-center gap-2"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 stroke-[2.25]" />
               <span>Buscar una ruta</span>
             </button>
           </div>
@@ -205,6 +205,7 @@ export const G2MisRutas: React.FC = () => {
 
                 const option = findOptionForRoute(item);
                 const isAvailable = Boolean(option);
+                const routeShortNum = option ? option.code.replace(/^Ruta\s*/i, '').trim() : 'R';
 
                 // Avisos recientes para esta ruta si está disponible
                 const alerts = isAvailable && option ? getAlertsForRoute(option.code) : [];
@@ -223,49 +224,56 @@ export const G2MisRutas: React.FC = () => {
                         handleCardClick(item, isAvailable);
                       }
                     }}
-                    className="w-full touch-target min-h-[64px] bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm text-left flex flex-col justify-between gap-2.5 active:scale-[0.99] active:bg-slate-50 transition-all cursor-pointer relative"
+                    className="w-full touch-target min-h-[64px] bg-[#F2F5FB] rounded-[22px] p-4 border border-[#E3E8F4] text-left flex flex-col justify-between gap-2.5 active:bg-[#E4EBFD]/30 transition-all cursor-pointer relative"
                   >
-                    <div className="flex items-start justify-between gap-2 w-full">
-                      <div className="min-w-0 flex-1">
-                        {/* Nombre de la ruta en negrita */}
-                        <h3 className="text-base font-bold text-slate-900 leading-snug truncate">
-                          {item.name}
-                        </h3>
+                    <div className="flex items-center justify-between gap-3 w-full">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Cuadro del número de ruta: cuadrado de 46-50 px con esquinas de 14 px */}
+                        <div className="w-[48px] h-[48px] min-w-[48px] rounded-[14px] bg-[#1F4BD8] text-white font-bold text-[16px] flex items-center justify-center shrink-0">
+                          {routeShortNum}
+                        </div>
 
-                        {/* "Origen a Destino" con nombres reales */}
-                        <p className="text-xs text-slate-600 font-medium mt-0.5 truncate">
-                          {originName} a {destName}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          {/* Nombre de la ruta en negrita */}
+                          <h3 className="text-base font-bold text-[#0B1B3F] leading-snug truncate">
+                            {item.name}
+                          </h3>
 
-                        {/* Código de ruta y tiempo o mensaje de no disponible */}
-                        {isAvailable && option ? (
-                          <p className="text-xs text-[#1f5c8b] font-semibold mt-1">
-                            {option.code} · {formatDuration(option.durationText)}
+                          {/* "Origen a Destino" con nombres reales */}
+                          <p className="text-[13px] text-[#5B6B8C] font-medium mt-0.5 truncate">
+                            {originName} a {destName}
                           </p>
-                        ) : (
-                          <p className="text-xs text-[#b3382c] font-semibold mt-1 flex items-center gap-1">
-                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                            <span>Esta ruta ya no está disponible</span>
-                          </p>
-                        )}
+
+                          {/* Código de ruta y tiempo o mensaje de no disponible */}
+                          {isAvailable && option ? (
+                            <p className="text-xs text-[#1F4BD8] font-bold mt-1">
+                              {option.code} · {formatDuration(option.durationText)}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-[#B42318] font-semibold mt-1 flex items-center gap-1">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>Esta ruta ya no está disponible</span>
+                            </p>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Botón de menú con tres puntos (48 px de área táctil) */}
+                      {/* Botón de menú con tres puntos */}
                       <button
                         type="button"
                         onClick={(e) => handleOpenMenu(e, item)}
                         aria-label={`Opciones para ${item.name}`}
-                        className="touch-target min-w-[48px] min-h-[48px] -mr-2 -mt-2 flex items-center justify-center text-slate-400 active:text-slate-800 rounded-full"
+                        className="touch-target min-w-[48px] min-h-[48px] -mr-2 flex items-center justify-center text-[#5B6B8C] active:text-[#0B1B3F] rounded-full"
                       >
                         <MoreVertical className="w-5 h-5" />
                       </button>
                     </div>
 
-                    {/* Franja amarilla si existe aviso reciente para la ruta */}
+                    {/* Franja de aviso en píldora si existe aviso reciente */}
                     {hasAlert && (
-                      <div className="w-full bg-[#fff4cc] border border-[#e0b400] rounded-xl px-2.5 py-1.5 flex items-center gap-2 text-xs text-slate-800 mt-1">
-                        <AlertTriangle className="w-4 h-4 text-[#b26a00] shrink-0" />
-                        <span className="font-bold text-[11px] text-[#b26a00]">
+                      <div className="w-full bg-[#FFEDD5] border border-[#FED7AA] rounded-full px-3 py-1.5 flex items-center gap-2 text-xs text-[#9A3412] mt-0.5">
+                        <AlertTriangle className="w-4 h-4 text-[#9A3412] shrink-0" />
+                        <span className="font-bold text-[11px] text-[#9A3412]">
                           {alertText}
                         </span>
                       </div>
@@ -280,9 +288,9 @@ export const G2MisRutas: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenSearchNew}
-                className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm shadow-xs active:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#E4EBFD] text-[#1F4BD8] font-bold text-sm active:bg-blue-100 transition-all flex items-center justify-center gap-2"
               >
-                <Plus className="w-4 h-4 text-[#1f5c8b]" />
+                <Plus className="w-4 h-4 stroke-[2.25]" />
                 <span>Buscar otra ruta</span>
               </button>
             </div>
@@ -290,25 +298,25 @@ export const G2MisRutas: React.FC = () => {
         )}
       </main>
 
-      {/* G3: HOJA DE OPCIONES DE UNA RUTA (Tres opciones de 56 px) */}
+      {/* G3: HOJA DE OPCIONES DE UNA RUTA */}
       <BottomSheet
         isOpen={Boolean(activeMenuRoute)}
         onClose={() => setActiveMenuRoute(null)}
         title={activeMenuRoute?.name || 'Opciones de ruta'}
       >
-        <div className="space-y-2 py-1" role="menu">
+        <div className="space-y-2.5 py-1" role="menu">
           {/* Opción 1: Cambiar nombre */}
           <button
             type="button"
             role="menuitem"
             onClick={handleStartRename}
-            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-blue-50 text-slate-800 font-bold text-sm flex items-center justify-between border border-slate-200/80 transition-colors"
+            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-[22px] bg-[#F2F5FB] hover:bg-[#E4EBFD]/30 active:bg-[#E4EBFD]/50 text-[#0B1B3F] font-bold text-sm flex items-center justify-between border border-[#E3E8F4] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Pencil className="w-5 h-5 text-[#1f5c8b]" />
+              <Pencil className="w-5 h-5 text-[#1F4BD8]" />
               <span>Cambiar nombre</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
+            <ChevronRight className="w-5 h-5 text-[#5B6B8C]" />
           </button>
 
           {/* Opción 2: Buscar de nuevo (hoy) */}
@@ -316,13 +324,13 @@ export const G2MisRutas: React.FC = () => {
             type="button"
             role="menuitem"
             onClick={handleSearchAgain}
-            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-blue-50 text-slate-800 font-bold text-sm flex items-center justify-between border border-slate-200/80 transition-colors"
+            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-[22px] bg-[#F2F5FB] hover:bg-[#E4EBFD]/30 active:bg-[#E4EBFD]/50 text-[#0B1B3F] font-bold text-sm flex items-center justify-between border border-[#E3E8F4] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <RotateCcw className="w-5 h-5 text-[#2e7d32]" />
+              <RotateCcw className="w-5 h-5 text-[#1F4BD8]" />
               <span>Buscar de nuevo (hoy)</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
+            <ChevronRight className="w-5 h-5 text-[#5B6B8C]" />
           </button>
 
           {/* Opción 3: Eliminar (en rojo) */}
@@ -330,13 +338,13 @@ export const G2MisRutas: React.FC = () => {
             type="button"
             role="menuitem"
             onClick={handleStartDelete}
-            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-2xl bg-red-50/50 hover:bg-red-50 active:bg-red-100 text-[#b3382c] font-bold text-sm flex items-center justify-between border border-red-200 transition-colors"
+            className="w-full touch-target min-h-[56px] px-4 py-3 rounded-[22px] bg-red-50/50 hover:bg-red-50 active:bg-red-100 text-[#B42318] font-bold text-sm flex items-center justify-between border border-red-200 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Trash2 className="w-5 h-5 text-[#b3382c]" />
+              <Trash2 className="w-5 h-5 text-[#B42318]" />
               <span>Eliminar</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-red-400" />
+            <ChevronRight className="w-5 h-5 text-[#B42318]" />
           </button>
         </div>
       </BottomSheet>
@@ -349,7 +357,7 @@ export const G2MisRutas: React.FC = () => {
       >
         <form onSubmit={handleSaveRename} noValidate className="space-y-4">
           <div className="text-left">
-            <label htmlFor="input-rename" className="block text-sm font-bold text-slate-800 mb-1.5">
+            <label htmlFor="input-rename" className="block text-sm font-bold text-[#0B1B3F] mb-1.5">
               Nuevo nombre
             </label>
             <input
@@ -360,15 +368,15 @@ export const G2MisRutas: React.FC = () => {
                 setRenameValue(e.target.value);
                 setRenameError(null);
               }}
-              className={`w-full min-h-[48px] px-3.5 py-3 rounded-xl border text-[16px] text-slate-900 bg-white focus:outline-none transition-colors ${
+              className={`w-full min-h-[48px] px-4 py-3 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white focus:outline-none transition-colors ${
                 renameError
-                  ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c]'
-                  : 'border-slate-300 focus:border-[#1f5c8b]'
+                  ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318]'
+                  : 'border-[#E3E8F4] focus:border-[#1F4BD8]'
               }`}
             />
 
             {renameError && (
-              <div className="mt-1.5 text-xs text-[#b3382c] flex items-center gap-1.5 font-semibold">
+              <div className="mt-1.5 text-xs text-[#B42318] flex items-center gap-1.5 font-semibold">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{renameError}</span>
               </div>
@@ -378,7 +386,7 @@ export const G2MisRutas: React.FC = () => {
           <div className="space-y-2 pt-2">
             <button
               type="submit"
-              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
             >
               <span>Guardar</span>
             </button>
@@ -386,7 +394,7 @@ export const G2MisRutas: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsRenameOpen(false)}
-              className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm active:bg-slate-50 transition-all flex items-center justify-center"
+              className="w-full touch-target min-h-[48px] py-3 px-4 rounded-[22px] bg-[#F2F5FB] border border-[#E3E8F4] text-[#5B6B8C] font-bold text-sm active:bg-[#E4EBFD]/50 transition-all flex items-center justify-center"
             >
               <span>Cancelar</span>
             </button>

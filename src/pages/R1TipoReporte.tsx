@@ -69,17 +69,17 @@ export const R1TipoReporte: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="flex flex-col h-full bg-white">
       <TopBar title="Reportar un problema" showBack={true} backFallback="/" />
 
       <main className="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
         <div className="space-y-4">
           
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm">
-            <h2 className="text-lg font-bold text-slate-900 leading-snug">
+          <div className="bg-[#F2F5FB] rounded-[22px] p-4 border border-[#E3E8F4]">
+            <h2 className="text-[20px] font-bold text-[#0B1B3F] leading-snug">
               ¿Qué pasó?
             </h2>
-            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+            <p className="text-[13px] text-[#5B6B8C] mt-1.5 leading-relaxed">
               Elige una opción para avisar a otras personas sobre el estado del transporte.
             </p>
           </div>
@@ -91,23 +91,25 @@ export const R1TipoReporte: React.FC = () => {
                 key={item.key}
                 type="button"
                 onClick={() => handleSelectType(item.key)}
-                className="w-full touch-target min-h-[56px] py-3.5 px-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm text-left flex items-center justify-between gap-3 active:scale-[0.99] active:bg-blue-50/40 transition-all group"
+                className="w-full touch-target min-h-[56px] py-3.5 px-4 rounded-[22px] bg-[#F2F5FB] border border-[#E3E8F4] text-left flex items-center justify-between gap-3 active:scale-[0.99] active:bg-[#E4EBFD]/50 transition-all group"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-active:bg-blue-100 transition-colors">
-                    {item.icon}
+                  <div className="w-10 h-10 rounded-[14px] bg-[#E4EBFD] text-[#1F4BD8] flex items-center justify-center shrink-0">
+                    {React.cloneElement(item.icon as React.ReactElement<{ className?: string }>, {
+                      className: 'w-5 h-5 text-[#1F4BD8] stroke-[2.25]',
+                    })}
                   </div>
                   <div className="min-w-0">
-                    <span className="block text-sm font-bold text-slate-900 leading-snug">
+                    <span className="block text-sm font-bold text-[#0B1B3F] leading-snug">
                       {item.label}
                     </span>
-                    <span className="block text-xs text-slate-500 leading-tight mt-0.5 truncate">
+                    <span className="block text-xs text-[#5B6B8C] leading-tight mt-0.5 truncate">
                       {item.description}
                     </span>
                   </div>
                 </div>
 
-                <ChevronRight className="w-5 h-5 text-slate-400 group-active:text-[#1f5c8b] shrink-0" />
+                <ChevronRight className="w-5 h-5 text-[#5B6B8C] group-active:text-[#1F4BD8] shrink-0" />
               </button>
             ))}
           </div>

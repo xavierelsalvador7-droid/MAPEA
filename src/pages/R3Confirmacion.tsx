@@ -31,28 +31,28 @@ export const R3Confirmacion: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="flex flex-col h-full bg-white">
       <TopBar title="Confirmación" showBack={false} />
 
       <main className="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
         <div className="flex-1 flex flex-col items-center justify-center text-center py-8 px-4">
           
-          {/* Ícono de check verde */}
-          <div className="w-20 h-20 rounded-full bg-emerald-100/90 text-[#2e7d32] flex items-center justify-center mb-5 shadow-sm border border-emerald-200">
-            <CheckCircle2 className="w-11 h-11 stroke-[2.5]" />
+          {/* Ícono de check en acento azul/soft */}
+          <div className="w-20 h-20 rounded-full bg-[#E4EBFD] text-[#1F4BD8] flex items-center justify-center mb-5 border border-[#1F4BD8]/20">
+            <CheckCircle2 className="w-11 h-11 stroke-[2.25]" />
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
+          <h2 className="text-[20px] font-bold text-[#0B1B3F] mb-2 leading-tight">
             ¡Gracias por avisar!
           </h2>
 
-          <p className="text-sm text-slate-600 max-w-xs leading-relaxed">
+          <p className="text-sm text-[#5B6B8C] max-w-xs leading-relaxed">
             Tu reporte ayuda a otras personas que usan la ruta.
           </p>
 
-          <div className="mt-6 px-4 py-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 max-w-xs">
-            <span className="font-semibold text-slate-800">Aviso publicado</span>
-            <p className="mt-0.5 text-slate-500">
+          <div className="mt-6 px-4 py-3.5 bg-[#F2F5FB] rounded-[22px] border border-[#E3E8F4] text-xs text-[#5B6B8C] max-w-xs">
+            <span className="font-bold text-[#0B1B3F] block">Aviso publicado</span>
+            <p className="mt-0.5 text-[#5B6B8C]">
               Quedó registrado para los usuarios en la consulta de rutas.
             </p>
           </div>
@@ -64,7 +64,7 @@ export const R3Confirmacion: React.FC = () => {
           <button
             type="button"
             onClick={handleReturnToTrip}
-            className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-base shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+            className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-base active:bg-blue-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
           >
             {hasTripContext ? (
               <>
@@ -83,9 +83,9 @@ export const R3Confirmacion: React.FC = () => {
           <button
             type="button"
             onClick={handleMakeAnotherReport}
-            className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white text-slate-700 border border-slate-300 font-bold text-sm active:bg-slate-50 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+            className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#E4EBFD] text-[#1F4BD8] font-bold text-sm active:bg-blue-100 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
           >
-            <PlusCircle className="w-4 h-4 text-slate-500" />
+            <PlusCircle className="w-4 h-4 stroke-[2.25]" />
             <span>Hacer otro reporte</span>
           </button>
         </div>

@@ -6,63 +6,46 @@ export const BottomTabBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Determine active tab: Mis rutas if pathname starts with /mis-rutas, otherwise Inicio
+  // Active tab determination
   const isMisRutas = location.pathname.startsWith('/mis-rutas');
   const isInicio = !isMisRutas;
 
   return (
-    <nav
-      aria-label="Navegación principal"
-      className="sticky bottom-0 z-40 bg-white border-t border-slate-200/90 shadow-md shrink-0"
-    >
-      <div className="grid grid-cols-2 max-w-[430px] mx-auto px-2">
+    <div className="shrink-0 p-3 pt-2 bg-gradient-to-t from-white via-white/80 to-transparent flex justify-center z-40">
+      <nav
+        aria-label="Navegación principal"
+        className="w-full max-w-[340px] bg-white rounded-full shadow-[0_4px_20px_rgba(11,27,63,0.12)] border border-[#E3E8F4] p-1 flex items-center gap-1"
+      >
         {/* Tab 1: Inicio */}
         <button
           onClick={() => navigate('/')}
           type="button"
-          className={`touch-target flex flex-col items-center justify-center py-2 transition-colors relative ${
+          className={`flex-1 min-h-[44px] rounded-full flex items-center justify-center gap-2 transition-all ${
             isInicio
-              ? 'text-[#1f5c8b] font-bold'
-              : 'text-slate-500 font-medium active:text-slate-800'
+              ? 'bg-[#E4EBFD] text-[#1F4BD8] font-bold'
+              : 'text-[#5B6B8C] font-medium active:bg-[#F2F5FB]'
           }`}
           aria-current={isInicio ? 'page' : undefined}
         >
-          <div className="relative">
-            <Compass className={`w-6 h-6 ${isInicio ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
-            {isInicio && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#1f5c8b] rounded-full" />
-            )}
-          </div>
-          <span className="text-[12px] mt-1 leading-none tracking-tight">
-            Inicio
-          </span>
+          <Compass className={`w-5 h-5 ${isInicio ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
+          <span className="text-[14px] leading-none">Inicio</span>
         </button>
 
         {/* Tab 2: Mis rutas */}
         <button
           onClick={() => navigate('/mis-rutas')}
           type="button"
-          className={`touch-target flex flex-col items-center justify-center py-2 transition-colors relative ${
+          className={`flex-1 min-h-[44px] rounded-full flex items-center justify-center gap-2 transition-all ${
             isMisRutas
-              ? 'text-[#1f5c8b] font-bold'
-              : 'text-slate-500 font-medium active:text-slate-800'
+              ? 'bg-[#E4EBFD] text-[#1F4BD8] font-bold'
+              : 'text-[#5B6B8C] font-medium active:bg-[#F2F5FB]'
           }`}
           aria-current={isMisRutas ? 'page' : undefined}
         >
-          <div className="relative">
-            <BookmarkCheck className={`w-6 h-6 ${isMisRutas ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
-            {isMisRutas && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#1f5c8b] rounded-full" />
-            )}
-          </div>
-          <span className="text-[12px] mt-1 leading-none tracking-tight">
-            Mis rutas
-          </span>
+          <BookmarkCheck className={`w-5 h-5 ${isMisRutas ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
+          <span className="text-[14px] leading-none">Mis rutas</span>
         </button>
-      </div>
-
-      {/* Safe area padding bottom */}
-      <div className="safe-bottom-h sm:h-2" />
-    </nav>
+      </nav>
+    </div>
   );
 };

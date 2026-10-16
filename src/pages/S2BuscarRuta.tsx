@@ -222,26 +222,26 @@ export const S2BuscarRuta: React.FC = () => {
   const destSuggestions = activeDropdown === 'destination' ? getAutocompleteSuggestions(destination) : [];
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="flex flex-col h-full bg-white">
       <TopBar title="Buscar ruta" showBack={true} backFallback="/" />
 
       <main className="flex-1 overflow-y-auto p-4 flex flex-col justify-between" ref={containerRef}>
         <form onSubmit={handleSearch} noValidate className="space-y-4">
           
           {/* Card de campos Origen y Destino */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 space-y-4 relative">
+          <div className="bg-[#F2F5FB] rounded-[22px] p-4 border border-[#E3E8F4] space-y-4 relative">
             
             {/* CAMPO ORIGEN */}
             <div className="relative">
               <label
                 htmlFor="input-origen"
-                className="block text-sm font-bold text-slate-800 mb-1.5"
+                className="block text-sm font-bold text-[#0B1B3F] mb-1.5"
               >
                 Origen
               </label>
               
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#1f5c8b]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#1F4BD8]">
                   <MapPin className="w-5 h-5" />
                 </div>
                 
@@ -255,10 +255,10 @@ export const S2BuscarRuta: React.FC = () => {
                   placeholder="Escribe dónde estás"
                   aria-invalid={!!originError}
                   aria-describedby={originError ? 'origen-error' : undefined}
-                  className={`w-full min-h-[48px] pl-11 pr-10 py-3 rounded-xl border text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none transition-colors ${
+                  className={`w-full min-h-[48px] pl-11 pr-10 py-3 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white placeholder:text-[#5B6B8C] focus:outline-none transition-colors ${
                     originError
-                      ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c] focus:ring-2 focus:ring-[#b3382c]/20'
-                      : 'border-slate-300 focus:border-[#1f5c8b] focus:ring-2 focus:ring-[#1f5c8b]/20'
+                      ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318] focus:ring-2 focus:ring-[#B42318]/20'
+                      : 'border-[#E3E8F4] focus:border-[#1F4BD8] focus:ring-2 focus:ring-[#1F4BD8]/20'
                   }`}
                 />
 
@@ -267,7 +267,7 @@ export const S2BuscarRuta: React.FC = () => {
                     type="button"
                     onClick={() => handleOriginChange('')}
                     aria-label="Borrar origen"
-                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 active:text-slate-700"
+                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-[#5B6B8C] active:text-[#0B1B3F]"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -278,7 +278,7 @@ export const S2BuscarRuta: React.FC = () => {
               {activeDropdown === 'origin' && originSuggestions.length > 0 && (
                 <ul
                   role="listbox"
-                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden divide-y divide-slate-100"
+                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-[22px] shadow-lg border border-[#E3E8F4] overflow-hidden divide-y divide-[#E3E8F4]"
                 >
                   {originSuggestions.map((place) => (
                     <li
@@ -286,12 +286,12 @@ export const S2BuscarRuta: React.FC = () => {
                       role="option"
                       aria-selected={false}
                       onClick={() => handleSelectOrigin(place)}
-                      className="touch-target min-h-[48px] px-3.5 py-2.5 flex flex-col justify-center cursor-pointer active:bg-blue-50 transition-colors"
+                      className="touch-target min-h-[48px] px-4 py-2.5 flex flex-col justify-center cursor-pointer active:bg-[#E4EBFD]/50 transition-colors"
                     >
-                      <span className="font-bold text-sm text-slate-900 leading-snug">
+                      <span className="font-bold text-sm text-[#0B1B3F] leading-snug">
                         {place.name}
                       </span>
-                      <span className="text-xs text-slate-500 leading-tight">
+                      <span className="text-xs text-[#5B6B8C] leading-tight">
                         {place.municipality}
                       </span>
                     </li>
@@ -301,7 +301,7 @@ export const S2BuscarRuta: React.FC = () => {
 
               {/* Mensaje de error Origen */}
               {originError && (
-                <div id="origen-error" className="mt-2 text-sm text-[#b3382c] space-y-2">
+                <div id="origen-error" className="mt-2 text-sm text-[#B42318] space-y-2">
                   <div className="flex items-start gap-1.5 font-medium leading-snug">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{originError}</span>
@@ -310,7 +310,7 @@ export const S2BuscarRuta: React.FC = () => {
                   {/* Sugerencias parecidas si lugar no fue reconocido */}
                   {originSimilar.length > 0 && (
                     <div className="pt-1">
-                      <p className="text-xs text-slate-600 mb-1.5 font-normal">
+                      <p className="text-xs text-[#5B6B8C] mb-1.5 font-normal">
                         ¿Quisiste decir alguno de estos lugares?
                       </p>
                       <div className="flex flex-wrap gap-1.5">
@@ -319,7 +319,7 @@ export const S2BuscarRuta: React.FC = () => {
                             key={place.id}
                             type="button"
                             onClick={() => handleSelectOrigin(place)}
-                            className="touch-target min-h-[40px] px-3 py-1.5 rounded-lg bg-blue-50 text-[#1f5c8b] border border-blue-200 text-xs font-semibold flex items-center gap-1.5 active:bg-blue-100 transition-colors"
+                            className="touch-target min-h-[40px] px-3.5 py-1.5 rounded-full bg-[#E4EBFD] text-[#1F4BD8] text-xs font-semibold flex items-center gap-1.5 active:bg-blue-100 transition-colors"
                           >
                             <CornerDownRight className="w-3.5 h-3.5" />
                             <span>{place.name}</span>
@@ -336,13 +336,13 @@ export const S2BuscarRuta: React.FC = () => {
             <div className="relative">
               <label
                 htmlFor="input-destino"
-                className="block text-sm font-bold text-slate-800 mb-1.5"
+                className="block text-sm font-bold text-[#0B1B3F] mb-1.5"
               >
                 Destino
               </label>
               
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#2e7d32]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#1F4BD8]">
                   <Navigation className="w-5 h-5" />
                 </div>
                 
@@ -356,10 +356,10 @@ export const S2BuscarRuta: React.FC = () => {
                   placeholder="Escribe a dónde vas"
                   aria-invalid={!!destError || samePlaceError}
                   aria-describedby={destError ? 'destino-error' : samePlaceError ? 'same-place-error' : undefined}
-                  className={`w-full min-h-[48px] pl-11 pr-10 py-3 rounded-xl border text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none transition-colors ${
+                  className={`w-full min-h-[48px] pl-11 pr-10 py-3 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white placeholder:text-[#5B6B8C] focus:outline-none transition-colors ${
                     destError || samePlaceError
-                      ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c] focus:ring-2 focus:ring-[#b3382c]/20'
-                      : 'border-slate-300 focus:border-[#1f5c8b] focus:ring-2 focus:ring-[#1f5c8b]/20'
+                      ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318] focus:ring-2 focus:ring-[#B42318]/20'
+                      : 'border-[#E3E8F4] focus:border-[#1F4BD8] focus:ring-2 focus:ring-[#1F4BD8]/20'
                   }`}
                 />
 
@@ -368,7 +368,7 @@ export const S2BuscarRuta: React.FC = () => {
                     type="button"
                     onClick={() => handleDestChange('')}
                     aria-label="Borrar destino"
-                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 active:text-slate-700"
+                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-[#5B6B8C] active:text-[#0B1B3F]"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -379,7 +379,7 @@ export const S2BuscarRuta: React.FC = () => {
               {activeDropdown === 'destination' && destSuggestions.length > 0 && (
                 <ul
                   role="listbox"
-                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden divide-y divide-slate-100"
+                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-[22px] shadow-lg border border-[#E3E8F4] overflow-hidden divide-y divide-[#E3E8F4]"
                 >
                   {destSuggestions.map((place) => (
                     <li
@@ -387,12 +387,12 @@ export const S2BuscarRuta: React.FC = () => {
                       role="option"
                       aria-selected={false}
                       onClick={() => handleSelectDestination(place)}
-                      className="touch-target min-h-[48px] px-3.5 py-2.5 flex flex-col justify-center cursor-pointer active:bg-blue-50 transition-colors"
+                      className="touch-target min-h-[48px] px-4 py-2.5 flex flex-col justify-center cursor-pointer active:bg-[#E4EBFD]/50 transition-colors"
                     >
-                      <span className="font-bold text-sm text-slate-900 leading-snug">
+                      <span className="font-bold text-sm text-[#0B1B3F] leading-snug">
                         {place.name}
                       </span>
-                      <span className="text-xs text-slate-500 leading-tight">
+                      <span className="text-xs text-[#5B6B8C] leading-tight">
                         {place.municipality}
                       </span>
                     </li>
@@ -402,7 +402,7 @@ export const S2BuscarRuta: React.FC = () => {
 
               {/* Mensaje de error Destino */}
               {destError && (
-                <div id="destino-error" className="mt-2 text-sm text-[#b3382c] space-y-2">
+                <div id="destino-error" className="mt-2 text-sm text-[#B42318] space-y-2">
                   <div className="flex items-start gap-1.5 font-medium leading-snug">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{destError}</span>
@@ -411,7 +411,7 @@ export const S2BuscarRuta: React.FC = () => {
                   {/* Sugerencias parecidas si lugar no fue reconocido */}
                   {destSimilar.length > 0 && (
                     <div className="pt-1">
-                      <p className="text-xs text-slate-600 mb-1.5 font-normal">
+                      <p className="text-xs text-[#5B6B8C] mb-1.5 font-normal">
                         ¿Quisiste decir alguno de estos lugares?
                       </p>
                       <div className="flex flex-wrap gap-1.5">
@@ -420,7 +420,7 @@ export const S2BuscarRuta: React.FC = () => {
                             key={place.id}
                             type="button"
                             onClick={() => handleSelectDestination(place)}
-                            className="touch-target min-h-[40px] px-3 py-1.5 rounded-lg bg-blue-50 text-[#1f5c8b] border border-blue-200 text-xs font-semibold flex items-center gap-1.5 active:bg-blue-100 transition-colors"
+                            className="touch-target min-h-[40px] px-3.5 py-1.5 rounded-full bg-[#E4EBFD] text-[#1F4BD8] text-xs font-semibold flex items-center gap-1.5 active:bg-blue-100 transition-colors"
                           >
                             <CornerDownRight className="w-3.5 h-3.5" />
                             <span>{place.name}</span>
@@ -434,7 +434,7 @@ export const S2BuscarRuta: React.FC = () => {
 
               {/* Validación Origen igual a destino (5c) */}
               {samePlaceError && (
-                <div id="same-place-error" className="mt-2 text-sm text-[#b3382c] flex items-start gap-1.5 font-medium leading-snug">
+                <div id="same-place-error" className="mt-2 text-sm text-[#B42318] flex items-start gap-1.5 font-medium leading-snug">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>El origen y el destino son el mismo lugar</span>
                 </div>
@@ -443,13 +443,13 @@ export const S2BuscarRuta: React.FC = () => {
 
           </div>
 
-          {/* Botón principal "Buscar ruta" fijo debajo de los campos */}
+          {/* Botón principal "Buscar ruta" */}
           <div>
             <button
               type="submit"
-              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-base shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-base active:bg-blue-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-5 h-5 stroke-[2.25]" />
               <span>Buscar ruta</span>
             </button>
           </div>

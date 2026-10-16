@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { TopBar } from '../components/TopBar';
 import { BottomTabBar } from '../components/BottomTabBar';
 import { BottomSheet } from '../components/BottomSheet';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { MapaReferencia } from '../components/MapaReferencia';
 import {
   MOCK_JOURNEYS,
   KNOWN_PLACES,
   RouteOption,
   INITIAL_ALERT,
-  DATA_LAST_UPDATED,
 } from '../data/mockData';
 import { getAlertsForRoute, getTimeAgoText, formatAlertDateTime } from '../utils/alerts';
 import {
@@ -29,8 +28,7 @@ import {
   Check,
   ArrowRight,
   AlertCircle,
-  Maximize2,
-  Minimize2
+  ArrowLeft
 } from 'lucide-react';
 
 function formatDuration(text: string): string {
@@ -38,11 +36,11 @@ function formatDuration(text: string): string {
   return `aprox. ${clean}`;
 }
 
-const ACTION_CONFIG: Record<string, { label: string; badgeStyle: string }> = {
-  sube: { label: 'SUBE', badgeStyle: 'bg-blue-100 text-[#1f5c8b] border-blue-200' },
-  viaja: { label: 'VIAJA', badgeStyle: 'bg-emerald-100 text-[#2e7d32] border-emerald-200' },
-  transborda: { label: 'TRANSBORDA', badgeStyle: 'bg-amber-100 text-[#b26a00] border-amber-200' },
-  bajate: { label: 'BÁJATE', badgeStyle: 'bg-slate-100 text-slate-700 border-slate-300' },
+const ACTION_CONFIG: Record<string, { label: string }> = {
+  sube: { label: 'SUBE' },
+  viaja: { label: 'VIAJA' },
+  transborda: { label: 'TRANSBORDA' },
+  bajate: { label: 'BÁJATE' },
 };
 
 const SHORTCUT_NAMES = ['Casa', 'Trabajo', 'Estudio'];
@@ -54,8 +52,6 @@ export const S4DetalleViaje: React.FC = () => {
   const originId = searchParams.get('o') || '';
   const destId = searchParams.get('d') || '';
   const optionId = searchParams.get('r') || '';
-
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   // Estados para guardar y quitar ruta
   const [isSaveSheetOpen, setIsSaveSheetOpen] = useState(false);
@@ -105,7 +101,6 @@ export const S4DetalleViaje: React.FC = () => {
     }
   }
 
-
   // Estado de ruta guardada sincronizado
   const [savedItem, setSavedItem] = useState<SavedRoute | undefined>(() => {
     if (originId && destId && matchedOption) {
@@ -120,25 +115,35 @@ export const S4DetalleViaje: React.FC = () => {
     }
   }, [originId, destId, matchedOption]);
 
-  // Caso: No encontramos este viaje
+  // Caso: No encontramos este viaje (sin r válido)
   if (!matchedOption) {
     return (
-      <div className="relative flex flex-col h-full bg-[#f5f7fa]">
-        <TopBar title="Detalle del viaje" showBack={true} backFallback="/resultados" />
+      <div className="relative flex flex-col h-full bg-white">
+        <div className="p-4 flex items-center gap-2 border-b border-[#E3E8F4]">
+          <button
+            onClick={() => navigate('/')}
+            type="button"
+            aria-label="Regresar"
+            className="touch-target min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#0B1B3F]"
+          >
+            <ArrowLeft className="w-5 h-5 stroke-[2.25]" />
+          </button>
+          <h1 className="text-[18px] font-bold text-[#0B1B3F]">Detalle del viaje</h1>
+        </div>
         <main className="flex-1 p-6 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-[#b26a00] mb-4">
+          <div className="w-16 h-16 rounded-[22px] bg-[#E4EBFD] text-[#1F4BD8] flex items-center justify-center mb-4">
             <Compass className="w-8 h-8" />
           </div>
-          <h2 className="text-lg font-bold text-slate-800 mb-2">
+          <h2 className="text-[20px] font-bold text-[#0B1B3F] mb-2">
             No encontramos este viaje
           </h2>
-          <p className="text-xs text-slate-500 max-w-xs mb-6">
+          <p className="text-[13px] text-[#5B6B8C] max-w-xs mb-6">
             La ruta solicitada no está disponible o los parámetros son inválidos.
           </p>
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="touch-target px-6 py-3 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] transition-colors"
+            className="touch-target min-h-[48px] px-6 py-3 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 transition-colors"
           >
             Volver a Inicio
           </button>
@@ -148,8 +153,8 @@ export const S4DetalleViaje: React.FC = () => {
     );
   }
 
-  // Título de la cabecera: "Ruta 26 (aprox. 55 min)"
-  const pageTitle = `${matchedOption.code} (${formatDuration(matchedOption.durationText)})`;
+  // Título de la barra flotante: "Ruta X · aprox. N min"
+  const floatingTitle = `${matchedOption.code} · ${formatDuration(matchedOption.durationText)}`;
 
   // Avisos recientes de la ruta
   const alerts = getAlertsForRoute(matchedOption.code);
@@ -209,54 +214,81 @@ export const S4DetalleViaje: React.FC = () => {
     navigate(`/reporte/tipo?${params.toString()}`);
   };
 
+  const handleBack = () => {
+    if (originId && destId) {
+      navigate(`/resultados?o=${encodeURIComponent(originId)}&d=${encodeURIComponent(destId)}`);
+    } else {
+      navigate(-1);
+    }
+  };
+
   const totalSavedCount = getSavedRoutes().length;
   const isLimitReached = !savedItem && totalSavedCount >= MAX_SAVED_ROUTES;
 
   return (
-    <div className="relative flex flex-col h-full bg-[#f5f7fa]">
-      <TopBar
-        title={pageTitle}
-        showBack={true}
-        backFallback={originId && destId ? `/resultados?o=${originId}&d=${destId}` : '/'}
-      />
-
-      {/* Fecha de actualización de datos en letra pequeña debajo de la barra */}
-      <div className="px-4 py-1.5 bg-slate-100 border-b border-slate-200/80 text-[11px] text-slate-500 font-medium text-center shrink-0">
-        Datos al: {DATA_LAST_UPDATED}
-      </div>
-
+    <div className="relative flex flex-col h-full bg-white overflow-hidden">
       {/* Toast breve de 2 segundos "Ruta guardada" */}
       {savedToast && (
-        <div className="absolute top-16 left-4 right-4 z-40 bg-[#2e7d32] text-white px-4 py-2.5 rounded-xl text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn">
+        <div className="absolute top-16 left-4 right-4 z-50 bg-[#0B1B3F] text-white px-4 py-3 rounded-[22px] text-center text-xs font-bold shadow-lg flex items-center justify-center gap-2 animate-fadeIn">
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Ruta guardada</span>
         </div>
       )}
 
-      <main className="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
-        <div className="space-y-4">
-          
-          {/* Banner de aviso arriba de las pestañas (si hay aviso reciente) */}
+      {/* 1. MAPA ARRIBA SIEMPRE VISIBLE CON RUTA */}
+      <div className="relative w-full h-[220px] shrink-0 bg-[#EAEFF7]">
+        <MapaReferencia
+          mostrarRuta={true}
+          className="w-full h-full"
+        />
+
+        {/* Barra flotante blanca encima del mapa: Flecha atrás y Ruta X · aprox. N min */}
+        <div className="absolute top-3 left-4 right-4 z-20 flex items-center gap-2 bg-white/95 backdrop-blur-md rounded-[22px] px-2.5 py-1.5 shadow-[0_2px_12px_rgba(11,27,63,0.08)] border border-[#E3E8F4]">
+          <button
+            onClick={handleBack}
+            type="button"
+            aria-label="Regresar"
+            className="touch-target min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[#0B1B3F] active:bg-[#F2F5FB] transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 stroke-[2.25]" />
+          </button>
+
+          <div className="min-w-0 flex-1 pr-3">
+            <p className="text-[14px] font-bold text-[#0B1B3F] truncate leading-tight">
+              {floatingTitle}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. HOJA INFERIOR CON EL CONTENIDO (Esquinas superiores de 28 px, manija gris) */}
+      <div className="flex-1 min-h-0 bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(11,27,63,0.08)] border-t border-[#E3E8F4] flex flex-col -mt-4 z-10 relative overflow-hidden">
+        {/* Manija gris superior */}
+        <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto my-2.5 shrink-0" />
+
+        {/* Contenido con scroll */}
+        <div className="flex-1 overflow-y-auto px-[18px] pb-2 space-y-3">
+          {/* Banner de aviso arriba de los pasos (si hay aviso reciente) */}
           {latestAlert && (
             <aside
               aria-label="Aviso reciente de la ruta"
-              className="bg-[#fff4cc] border border-[#e0b400] rounded-2xl p-3.5 shadow-sm text-slate-800"
+              className="bg-[#FFEDD5] border border-[#FED7AA] rounded-[22px] p-3.5 text-[#9A3412]"
             >
               <div className="flex items-start gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-[#b26a00] shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-[#9A3412] shrink-0 mt-0.5" />
                 <div className="text-xs leading-snug flex-1">
                   <div className="flex items-center justify-between gap-1 flex-wrap mb-1">
-                    <span className="font-bold text-[#b26a00]">
+                    <span className="font-bold text-[#9A3412]">
                       Reportado por usuarios, {getTimeAgoText(latestAlert)}
                     </span>
                     {extraAlerts > 0 && (
-                      <span className="text-[10px] font-bold text-[#b26a00] bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300">
-                        +{extraAlerts} aviso{extraAlerts > 1 ? 's' : ''} más
+                      <span className="text-[10px] font-bold text-[#9A3412] bg-white px-2 py-0.5 rounded-full border border-[#FED7AA]">
+                        +{extraAlerts} más
                       </span>
                     )}
                   </div>
 
-                  <p className="font-medium text-slate-900 text-sm leading-snug">
+                  <p className="font-semibold text-[#0B1B3F] text-[13px] leading-snug">
                     {latestAlert.description || (
                       <>
                         {latestAlert.type}
@@ -266,12 +298,12 @@ export const S4DetalleViaje: React.FC = () => {
                     )}
                   </p>
 
-                  <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-amber-200/70 text-[11px] text-slate-600">
+                  <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-[#FED7AA]/60 text-[11px] text-[#9A3412]/80">
                     <span>
                       Confirmado por {latestAlert.confirmations} persona{latestAlert.confirmations !== 1 ? 's' : ''}
                     </span>
                     {latestAlert.id !== INITIAL_ALERT.id && latestAlert.timestamp && (
-                      <span className="text-slate-500">
+                      <span>
                         {formatAlertDateTime(latestAlert.timestamp)}
                       </span>
                     )}
@@ -281,90 +313,9 @@ export const S4DetalleViaje: React.FC = () => {
             </aside>
           )}
 
-          {/* 2. MAPA ILUSTRATIVO (160 px por defecto, ampliable a 320 px) */}
-          <section aria-label="Mapa ilustrativo" className="space-y-2">
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex flex-col items-center">
-              {/* SVG Ilustrativo del recorrido */}
-              <div className={`relative w-full ${isMapExpanded ? 'h-[320px]' : 'h-[160px]'} bg-slate-50 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center transition-[height] duration-300 ease-in-out`}>
-                <svg viewBox="0 0 340 220" className="w-full h-full object-cover">
-                  <rect width="340" height="220" fill="#f8fafc" />
-                  
-                  {/* Cuadrícula suave de referencia */}
-                  <path d="M 0 55 L 340 55 M 0 110 L 340 110 M 0 165 L 340 165" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
-                  <path d="M 85 0 L 85 220 M 170 0 L 170 220 M 255 0 L 255 220" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
-
-                  {/* Sombra de la ruta */}
-                  <path
-                    d="M 50 160 C 110 160, 140 70, 290 70"
-                    fill="none"
-                    stroke="#cbd5e1"
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Línea principal de transporte */}
-                  <path
-                    d="M 50 160 C 110 160, 140 70, 290 70"
-                    fill="none"
-                    stroke="#1f5c8b"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Punto de Origen */}
-                  <circle cx="50" cy="160" r="8" fill="#1f5c8b" />
-                  <circle cx="50" cy="160" r="4" fill="#ffffff" />
-                  <rect x="15" y="176" width="100" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
-                  <text x="65" y="193" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
-                    {originName ? (originName.length > 14 ? originName.slice(0, 14) + '...' : originName) : 'Origen'}
-                  </text>
-
-                  {/* Punto intermedio con badge de ruta */}
-                  <circle cx="170" cy="115" r="5" fill="#e0b400" stroke="#ffffff" strokeWidth="2" />
-                  <rect x="135" y="90" width="70" height="18" rx="4" fill="#1f5c8b" />
-                  <text x="170" y="103" fontSize="9" fontWeight="bold" fill="#ffffff" textAnchor="middle">
-                    {matchedOption.code}
-                  </text>
-
-                  {/* Punto de Destino */}
-                  <circle cx="290" cy="70" r="8" fill="#2e7d32" />
-                  <circle cx="290" cy="70" r="4" fill="#ffffff" />
-                  <rect x="225" y="24" width="105" height="26" rx="6" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
-                  <text x="277" y="41" fontSize="10" fontWeight="bold" fill="#1e293b" textAnchor="middle">
-                    {destName ? (destName.length > 15 ? destName.slice(0, 15) + '...' : destName) : 'Destino'}
-                  </text>
-                </svg>
-              </div>
-
-              {/* Leyenda requerida: "Mapa ilustrativo. No muestra tu ubicación ni tiempo real." */}
-              <p className="text-xs text-slate-500 font-medium text-center mt-2.5 leading-normal">
-                Mapa ilustrativo. No muestra tu ubicación ni tiempo real.
-              </p>
-
-              {/* Botón "Ampliar mapa" / "Reducir mapa" (mínimo 48 px de alto táctil) */}
-              <button
-                type="button"
-                onClick={() => setIsMapExpanded(!isMapExpanded)}
-                className="mt-3 w-full touch-target min-h-[48px] py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-xs border border-slate-200 transition-colors flex items-center justify-center gap-2"
-              >
-                {isMapExpanded ? (
-                  <>
-                    <Minimize2 className="w-4 h-4 text-[#1f5c8b]" />
-                    <span>Reducir mapa</span>
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="w-4 h-4 text-[#1f5c8b]" />
-                    <span>Ampliar mapa</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </section>
-
-          {/* 3. LISTA DE PASOS */}
-          <section aria-label="Instrucciones paso a paso" className="space-y-3">
-            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm divide-y divide-slate-100">
+          {/* LISTA DE PASOS */}
+          <section aria-label="Instrucciones paso a paso">
+            <div className="bg-[#F2F5FB] rounded-[22px] p-4 border border-[#E3E8F4] divide-y divide-[#E3E8F4]">
               {steps.map((step, idx) => {
                 const actionKey = step.action || 'sube';
                 const actionConfig = ACTION_CONFIG[actionKey] || ACTION_CONFIG.sube;
@@ -372,41 +323,40 @@ export const S4DetalleViaje: React.FC = () => {
                 const referenceText = step.reference || step.instruction;
 
                 return (
-                  <div key={step.order || idx} className="py-3.5 first:pt-1 last:pb-1 flex items-start gap-3">
-                    {/* Número circular de orden */}
-                    <div className="w-7 h-7 rounded-full bg-[#1f5c8b] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  <div key={step.order || idx} className="py-3 first:pt-0 last:pb-0 flex items-start gap-3">
+                    {/* Número circular azul */}
+                    <div className="w-7 h-7 rounded-full bg-[#1F4BD8] text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                       {step.order || idx + 1}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      {/* Etiqueta de acción directamente de action */}
+                      {/* Etiqueta de acción en azul suave */}
                       <div className="mb-1">
-                        <span className={`inline-block text-[10px] font-extrabold px-2 py-0.5 rounded-md border tracking-wider ${actionConfig.badgeStyle}`}>
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wider bg-[#E4EBFD] text-[#1F4BD8]">
                           {actionConfig.label}
                         </span>
                       </div>
 
                       {/* Lugar de referencia en letra grande y legible */}
-                      <p className="text-base font-bold text-slate-900 leading-snug break-words">
+                      <p className="text-[15px] font-bold text-[#0B1B3F] leading-snug break-words">
                         {referenceText}
                       </p>
 
-                      {/* En el paso VIAJA: detalle en pequeño */}
+                      {/* Detalle o parada técnica en pequeño */}
                       {isViaja && step.details && (
-                        <p className="text-xs text-slate-500 mt-0.5 leading-snug break-words">
+                        <p className="text-[13px] text-[#5B6B8C] mt-0.5 leading-snug break-words">
                           {step.details}
                         </p>
                       )}
 
-                      {/* En otros pasos: Parada técnica en pequeño si existe */}
                       {!isViaja && step.stopName && (
-                        <p className="text-xs text-slate-500 mt-0.5 leading-snug font-medium break-words">
-                          Parada: <span className="text-slate-600">{step.stopName}</span>
+                        <p className="text-[13px] text-[#5B6B8C] mt-0.5 leading-snug font-medium break-words">
+                          Parada: <span className="text-[#0B1B3F]">{step.stopName}</span>
                         </p>
                       )}
 
                       {!isViaja && step.details && (
-                        <p className="text-[11px] text-slate-400 mt-0.5 leading-tight break-words">
+                        <p className="text-[12px] text-[#5B6B8C] mt-0.5 leading-tight break-words">
                           {step.details}
                         </p>
                       )}
@@ -417,42 +367,41 @@ export const S4DetalleViaje: React.FC = () => {
             </div>
           </section>
 
-          {/* DOS BOTONES AL FINAL DEL CONTENIDO (No fijos, mínimo 48 px) */}
-          <div className="pt-2 pb-6 space-y-2.5">
-            {/* Botón Principal: "Guardar ruta" o "Guardada ✓" */}
+          {/* BOTONES "Guardar ruta" y "Reportar" EN UNA FILA */}
+          <div className="grid grid-cols-2 gap-2.5 pt-1 pb-3">
+            {/* Botón Guardar ruta (azul) */}
             {savedItem ? (
               <button
                 type="button"
                 onClick={() => setIsConfirmRemoveOpen(true)}
-                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#2e7d32] text-white font-bold text-sm shadow-md active:bg-[#256628] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                className="w-full touch-target min-h-[48px] py-3 px-3 rounded-[22px] bg-[#E4EBFD] text-[#1F4BD8] border border-[#1F4BD8]/30 font-bold text-[13px] active:bg-blue-200 transition-all flex items-center justify-center gap-1.5"
               >
-                <Check className="w-5 h-5 stroke-[2.5]" />
-                <span>Guardada ✓</span>
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span className="truncate">Guardada ✓</span>
               </button>
             ) : (
               <button
                 type="button"
                 onClick={handleOpenSaveSheet}
-                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                className="w-full touch-target min-h-[48px] py-3 px-3 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-[13px] active:bg-blue-800 transition-all flex items-center justify-center gap-1.5 shadow-xs"
               >
-                <Bookmark className="w-5 h-5 text-blue-200" />
-                <span>Guardar ruta</span>
+                <Bookmark className="w-4 h-4" />
+                <span className="truncate">Guardar ruta</span>
               </button>
             )}
 
-            {/* Botón Secundario: Reportar un problema */}
+            {/* Botón Reportar (azul suave) */}
             <button
               type="button"
               onClick={handleReportProblem}
-              className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-white text-slate-800 border-2 border-slate-200 font-bold text-sm active:bg-slate-50 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-xs"
+              className="w-full touch-target min-h-[48px] py-3 px-3 rounded-[22px] bg-[#E4EBFD] text-[#1F4BD8] font-bold text-[13px] active:bg-blue-200 transition-all flex items-center justify-center gap-1.5"
             >
-              <Flag className="w-4 h-4 text-[#b26a00]" />
-              <span>Reportar un problema</span>
+              <Flag className="w-4 h-4 stroke-[2.25]" />
+              <span className="truncate">Reportar</span>
             </button>
           </div>
-
         </div>
-      </main>
+      </div>
 
       {/* G1: HOJA INFERIOR PARA GUARDAR RUTA */}
       <BottomSheet
@@ -461,13 +410,12 @@ export const S4DetalleViaje: React.FC = () => {
         title="Guardar esta ruta"
       >
         {isLimitReached ? (
-          /* Error 4e: Límite de 10 rutas alcanzado */
           <div className="space-y-4 py-2 text-center">
-            <div className="w-12 h-12 rounded-full bg-amber-100 text-[#b26a00] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#FFEDD5] text-[#9A3412] flex items-center justify-center mx-auto border border-[#FED7AA]">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900 leading-snug">
+              <p className="text-sm font-bold text-[#0B1B3F] leading-snug">
                 Puedes guardar hasta 10 rutas. Elimina una para añadir otra.
               </p>
             </div>
@@ -477,7 +425,7 @@ export const S4DetalleViaje: React.FC = () => {
                 setIsSaveSheetOpen(false);
                 navigate('/mis-rutas');
               }}
-              className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md flex items-center justify-center gap-2"
+              className="w-full touch-target min-h-[48px] py-3 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 flex items-center justify-center gap-2"
             >
               <span>Ir a Mis rutas</span>
               <ArrowRight className="w-4 h-4" />
@@ -485,22 +433,22 @@ export const S4DetalleViaje: React.FC = () => {
           </div>
         ) : (
           <form onSubmit={handleSaveSubmit} noValidate className="space-y-4">
-            {/* Origen y Destino en solo lectura */}
-            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left space-y-1">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+            {/* Trayecto */}
+            <div className="p-3.5 bg-[#F2F5FB] rounded-[18px] border border-[#E3E8F4] text-left space-y-1">
+              <span className="text-[11px] font-bold text-[#5B6B8C] uppercase tracking-wider block">
                 Trayecto
               </span>
-              <p className="text-sm font-bold text-slate-900 leading-snug">
+              <p className="text-sm font-bold text-[#0B1B3F] leading-snug">
                 {originName} a {destName}
               </p>
-              <p className="text-xs text-[#1f5c8b] font-semibold">
+              <p className="text-xs text-[#1F4BD8] font-bold">
                 {matchedOption.code}
               </p>
             </div>
 
             {/* Campo Nombre */}
             <div className="text-left">
-              <label htmlFor="input-save-name" className="block text-sm font-bold text-slate-800 mb-1.5">
+              <label htmlFor="input-save-name" className="block text-sm font-bold text-[#0B1B3F] mb-1.5">
                 Nombre de la ruta
               </label>
               <input
@@ -512,25 +460,25 @@ export const S4DetalleViaje: React.FC = () => {
                   setNameError(null);
                 }}
                 placeholder={`${originName} a ${destName}`}
-                className={`w-full min-h-[48px] px-3.5 py-3 rounded-xl border text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none transition-colors ${
+                className={`w-full min-h-[48px] px-4 py-3 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white placeholder:text-[#5B6B8C] focus:outline-none transition-colors ${
                   nameError
-                    ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c]'
-                    : 'border-slate-300 focus:border-[#1f5c8b]'
+                    ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318]'
+                    : 'border-[#E3E8F4] focus:border-[#1F4BD8]'
                 }`}
               />
 
               {/* Error 4c: Nombre repetido */}
               {nameError && (
-                <div className="mt-1.5 text-xs text-[#b3382c] flex items-center gap-1.5 font-semibold">
+                <div className="mt-1.5 text-xs text-[#B42318] flex items-center gap-1.5 font-semibold">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{nameError}</span>
                 </div>
               )}
             </div>
 
-            {/* Línea de Atajos: Casa, Trabajo, Estudio (mínimo 40 px) */}
+            {/* Atajos */}
             <div className="text-left pt-1">
-              <span className="text-xs font-semibold text-slate-600 mb-2 block">
+              <span className="text-xs font-semibold text-[#5B6B8C] mb-2 block">
                 Atajos:
               </span>
               <div className="flex flex-wrap gap-2">
@@ -542,7 +490,7 @@ export const S4DetalleViaje: React.FC = () => {
                       setCustomName(shortcut);
                       setNameError(null);
                     }}
-                    className="touch-target min-h-[40px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-blue-100 text-slate-800 text-xs font-bold border border-slate-200 transition-colors"
+                    className="touch-target min-h-[40px] px-4 py-2 rounded-full bg-[#E4EBFD] text-[#1F4BD8] text-xs font-bold active:bg-blue-100 transition-colors"
                   >
                     {shortcut}
                   </button>
@@ -550,11 +498,11 @@ export const S4DetalleViaje: React.FC = () => {
               </div>
             </div>
 
-            {/* Botones Guardar y Cancelar (48 px) */}
+            {/* Botones Guardar y Cancelar */}
             <div className="pt-2 space-y-2">
               <button
                 type="submit"
-                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl bg-[#1f5c8b] text-white font-bold text-sm shadow-md active:bg-[#18496e] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                className="w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 transition-all flex items-center justify-center gap-2"
               >
                 <span>Guardar</span>
               </button>
@@ -562,7 +510,7 @@ export const S4DetalleViaje: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSaveSheetOpen(false)}
-                className="w-full touch-target min-h-[48px] py-3 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm active:bg-slate-50 transition-all flex items-center justify-center"
+                className="w-full touch-target min-h-[48px] py-3 px-4 rounded-[22px] bg-[#F2F5FB] border border-[#E3E8F4] text-[#5B6B8C] font-bold text-sm active:bg-[#E4EBFD]/50 transition-all flex items-center justify-center"
               >
                 <span>Cancelar</span>
               </button>
@@ -583,6 +531,7 @@ export const S4DetalleViaje: React.FC = () => {
         isDestructive={true}
       />
 
+      {/* Barra de navegación inferior flotante */}
       <BottomTabBar />
     </div>
   );

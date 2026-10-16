@@ -40,15 +40,15 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label={title || 'Panel inferior'}
-        className="relative z-10 w-full max-h-[85%] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-slideUp"
+        className="relative z-10 w-full max-h-[85%] bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(11,27,63,0.12)] border-t border-[#E3E8F4] flex flex-col overflow-hidden animate-slideUp"
       >
-        {/* Barra superior / Indicador de arrastre */}
-        <div className="pt-3 pb-1 px-4 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2" />
+        {/* Manija gris pequeña arriba */}
+        <div className="pt-3 pb-1 px-4 flex items-center justify-between border-b border-[#E3E8F4] shrink-0 relative">
+          <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2.5" />
           
           <div className="min-w-0 pr-2 pt-2">
             {title && (
-              <h3 className="text-base font-bold text-slate-900 truncate">
+              <h3 className="text-[18px] font-bold text-[#0B1B3F] truncate">
                 {title}
               </h3>
             )}
@@ -58,7 +58,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="touch-target p-1.5 text-slate-400 active:text-slate-700 rounded-full shrink-0"
+            className="touch-target min-w-[48px] min-h-[48px] p-2 text-[#5B6B8C] active:text-[#0B1B3F] rounded-full shrink-0 flex items-center justify-center -mr-2"
           >
             <X className="w-5 h-5" />
           </button>

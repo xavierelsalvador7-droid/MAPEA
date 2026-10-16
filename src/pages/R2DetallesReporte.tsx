@@ -195,7 +195,7 @@ export const R2DetallesReporte: React.FC = () => {
   const refSuggestions = showRefSuggestions ? getAutocompleteSuggestions(reference) : [];
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f7fa]">
+    <div className="flex flex-col h-full bg-white">
       <TopBar
         title={typeTitle}
         showBack={true}
@@ -207,20 +207,20 @@ export const R2DetallesReporte: React.FC = () => {
           
           {/* Error 4b: Banner si no hay conexión */}
           {!isOnline && (
-            <div className="bg-[#fff4cc] border border-[#e0b400] rounded-2xl p-3.5 shadow-sm text-slate-800 flex items-start gap-2.5">
-              <WifiOff className="w-5 h-5 text-[#b26a00] shrink-0 mt-0.5" />
-              <p className="text-xs font-medium leading-snug text-slate-900">
+            <div className="bg-[#FFEDD5] border border-[#FED7AA] rounded-[22px] p-4 text-[#9A3412] flex items-start gap-2.5">
+              <WifiOff className="w-5 h-5 text-[#9A3412] shrink-0 mt-0.5" />
+              <p className="text-xs font-medium leading-snug">
                 No hay conexión. Tu reporte se guarda y se envía cuando vuelvas a tener datos.
               </p>
             </div>
           )}
 
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/90 space-y-4">
+          <div className="bg-[#F2F5FB] rounded-[22px] p-4 border border-[#E3E8F4] space-y-4">
             
             {/* CAMPO RUTA (Select nativo, 16px, 48px alto) */}
             <div>
-              <label htmlFor="select-route" className="block text-sm font-bold text-slate-800 mb-1.5">
-                Ruta <span className="text-[#b3382c]">*</span>
+              <label htmlFor="select-route" className="block text-sm font-bold text-[#0B1B3F] mb-1.5">
+                Ruta <span className="text-[#B42318]">*</span>
               </label>
 
               <select
@@ -231,10 +231,10 @@ export const R2DetallesReporte: React.FC = () => {
                   setRouteError(null);
                   setSimilarAlert(null);
                 }}
-                className={`w-full min-h-[48px] px-3.5 py-3 rounded-xl border text-[16px] text-slate-900 bg-white focus:outline-none transition-colors ${
+                className={`w-full min-h-[48px] px-4 py-3 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white focus:outline-none transition-colors ${
                   routeError
-                    ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c] focus:ring-2 focus:ring-[#b3382c]/20'
-                    : 'border-slate-300 focus:border-[#1f5c8b] focus:ring-2 focus:ring-[#1f5c8b]/20'
+                    ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318] focus:ring-2 focus:ring-[#B42318]/20'
+                    : 'border-[#E3E8F4] focus:border-[#1F4BD8] focus:ring-2 focus:ring-[#1F4BD8]/20'
                 }`}
               >
                 <option value="">Elige la ruta</option>
@@ -247,7 +247,7 @@ export const R2DetallesReporte: React.FC = () => {
 
               {/* Error 4a: Mensaje rojo bajo el selector */}
               {routeError && (
-                <div className="mt-1.5 text-xs text-[#b3382c] flex items-center gap-1.5 font-semibold">
+                <div className="mt-1.5 text-xs text-[#B42318] flex items-center gap-1.5 font-semibold">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{routeError}</span>
                 </div>
@@ -256,12 +256,12 @@ export const R2DetallesReporte: React.FC = () => {
 
             {/* CAMPO ¿DÓNDE? (REFERENCIA) - Opcional con autocompletar */}
             <div className="relative" ref={refContainerRef}>
-              <label htmlFor="input-ref" className="block text-sm font-bold text-slate-800 mb-1.5">
-                ¿Dónde? (referencia) <span className="text-xs font-normal text-slate-500">(opcional)</span>
+              <label htmlFor="input-ref" className="block text-sm font-bold text-[#0B1B3F] mb-1.5">
+                ¿Dónde? (referencia) <span className="text-xs font-normal text-[#5B6B8C]">(opcional)</span>
               </label>
 
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5B6B8C]">
                   <MapPin className="w-5 h-5" />
                 </div>
 
@@ -276,7 +276,7 @@ export const R2DetallesReporte: React.FC = () => {
                   }}
                   onFocus={() => setShowRefSuggestions(true)}
                   placeholder="Ej: frente a la Alcaldía"
-                  className="w-full min-h-[48px] pl-11 pr-10 py-3 rounded-xl border border-slate-300 text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:border-[#1f5c8b] focus:ring-2 focus:ring-[#1f5c8b]/20 transition-colors"
+                  className="w-full min-h-[48px] pl-11 pr-10 py-3 rounded-[22px] border border-[#E3E8F4] text-[16px] text-[#0B1B3F] bg-white placeholder:text-[#5B6B8C] focus:outline-none focus:border-[#1F4BD8] focus:ring-2 focus:ring-[#1F4BD8]/20 transition-colors"
                 />
 
                 {reference && (
@@ -287,7 +287,7 @@ export const R2DetallesReporte: React.FC = () => {
                       setShowRefSuggestions(false);
                     }}
                     aria-label="Borrar referencia"
-                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 active:text-slate-700"
+                    className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-[#5B6B8C] active:text-[#0B1B3F]"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -298,7 +298,7 @@ export const R2DetallesReporte: React.FC = () => {
               {showRefSuggestions && refSuggestions.length > 0 && (
                 <ul
                   role="listbox"
-                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden divide-y divide-slate-100"
+                  className="absolute z-30 left-0 right-0 mt-1 bg-white rounded-[22px] shadow-lg border border-[#E3E8F4] overflow-hidden divide-y divide-[#E3E8F4]"
                 >
                   {refSuggestions.map((place) => (
                     <li
@@ -309,12 +309,12 @@ export const R2DetallesReporte: React.FC = () => {
                         setReference(place.name);
                         setShowRefSuggestions(false);
                       }}
-                      className="touch-target min-h-[48px] px-3.5 py-2.5 flex flex-col justify-center cursor-pointer active:bg-blue-50 transition-colors"
+                      className="touch-target min-h-[48px] px-4 py-2.5 flex flex-col justify-center cursor-pointer active:bg-[#E4EBFD]/50 transition-colors"
                     >
-                      <span className="font-bold text-sm text-slate-900 leading-snug">
+                      <span className="font-bold text-sm text-[#0B1B3F] leading-snug">
                         {place.name}
                       </span>
-                      <span className="text-xs text-slate-500 leading-tight">
+                      <span className="text-xs text-[#5B6B8C] leading-tight">
                         {place.municipality}
                       </span>
                     </li>
@@ -326,12 +326,12 @@ export const R2DetallesReporte: React.FC = () => {
             {/* CAMPO COMENTARIO (OPCIONAL) - Textarea con contador */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="textarea-comment" className="block text-sm font-bold text-slate-800">
-                  Comentario <span className="text-xs font-normal text-slate-500">(opcional)</span>
+                <label htmlFor="textarea-comment" className="block text-sm font-bold text-[#0B1B3F]">
+                  Comentario <span className="text-xs font-normal text-[#5B6B8C]">(opcional)</span>
                 </label>
                 <span
                   className={`text-xs font-mono font-medium ${
-                    isOverLimit ? 'text-[#b3382c] font-bold' : 'text-slate-500'
+                    isOverLimit ? 'text-[#B42318] font-bold' : 'text-[#5B6B8C]'
                   }`}
                 >
                   {charCount} / 140
@@ -344,16 +344,16 @@ export const R2DetallesReporte: React.FC = () => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Agrega algún detalle útil para los demás pasajeros..."
-                className={`w-full p-3 rounded-xl border text-[16px] text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none transition-colors resize-none ${
+                className={`w-full p-3.5 rounded-[22px] border text-[16px] text-[#0B1B3F] bg-white placeholder:text-[#5B6B8C] focus:outline-none transition-colors resize-none ${
                   isOverLimit
-                    ? 'border-[#b3382c] bg-red-50/20 focus:border-[#b3382c] focus:ring-2 focus:ring-[#b3382c]/20'
-                    : 'border-slate-300 focus:border-[#1f5c8b] focus:ring-2 focus:ring-[#1f5c8b]/20'
+                    ? 'border-[#B42318] bg-red-50/20 focus:border-[#B42318] focus:ring-2 focus:ring-[#B42318]/20'
+                    : 'border-[#E3E8F4] focus:border-[#1F4BD8] focus:ring-2 focus:ring-[#1F4BD8]/20'
                 }`}
               />
 
               {/* Error 4c: Límite excedido */}
               {isOverLimit && (
-                <div className="mt-1 text-xs text-[#b3382c] flex items-center gap-1.5 font-semibold">
+                <div className="mt-1 text-xs text-[#B42318] flex items-center gap-1.5 font-semibold">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>Máximo 140 caracteres</span>
                 </div>
@@ -361,22 +361,22 @@ export const R2DetallesReporte: React.FC = () => {
             </div>
 
             {/* Texto informativo fijo requerido */}
-            <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+            <p className="text-[12px] text-[#5B6B8C] leading-relaxed border-t border-[#E3E8F4] pt-3">
               Se guarda con la fecha y hora de ahora. No se solicitan datos personales ni cuentas.
             </p>
           </div>
 
           {/* Error 4d: Alerta parecida hace <60 min sobre el botón */}
           {similarAlert && (
-            <div className="bg-[#fff4cc] border-2 border-[#e0b400] rounded-2xl p-4 shadow-sm text-slate-800 space-y-3">
+            <div className="bg-[#FFEDD5] border border-[#FED7AA] rounded-[22px] p-4 text-[#9A3412] space-y-3">
               <div className="flex items-start gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-[#b26a00] shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-[#9A3412] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-bold text-slate-900 leading-snug">
+                  <p className="text-sm font-bold text-[#0B1B3F] leading-snug">
                     Ya recibimos un reporte parecido hace unos minutos. ¿Quieres añadir el tuyo?
                   </p>
-                  <p className="text-xs text-slate-600 mt-1 leading-snug">
-                    Ruta: <span className="font-bold text-slate-800">{similarAlert.routeCode}</span> · {similarAlert.type}
+                  <p className="text-xs text-[#9A3412] mt-1 leading-snug">
+                    Ruta: <span className="font-bold">{similarAlert.routeCode}</span> · {similarAlert.type}
                   </p>
                 </div>
               </div>
@@ -385,7 +385,7 @@ export const R2DetallesReporte: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleConfirmExisting}
-                  className="w-full touch-target min-h-[48px] py-2.5 px-4 rounded-xl bg-[#2e7d32] text-white font-bold text-sm shadow-sm active:bg-[#256628] transition-all flex items-center justify-center gap-2"
+                  className="w-full touch-target min-h-[48px] py-2.5 px-4 rounded-[22px] bg-[#1F4BD8] text-white font-bold text-sm active:bg-blue-800 transition-all flex items-center justify-center gap-2"
                 >
                   <Check className="w-4 h-4" />
                   <span>A mí también me pasó</span>
@@ -394,7 +394,7 @@ export const R2DetallesReporte: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleForceSubmit}
-                  className="w-full touch-target min-h-[48px] py-2.5 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm active:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full touch-target min-h-[48px] py-2.5 px-4 rounded-[22px] bg-white border border-[#FED7AA] text-[#9A3412] font-bold text-sm active:bg-amber-50 transition-all flex items-center justify-center gap-2"
                 >
                   <span>Enviar el mío igual</span>
                 </button>
@@ -402,19 +402,19 @@ export const R2DetallesReporte: React.FC = () => {
             </div>
           )}
 
-          {/* Botón Principal "Enviar reporte" (48 px mínimo) */}
+          {/* Botón Principal "Enviar reporte" */}
           {!similarAlert && (
             <div>
               <button
                 type="submit"
                 disabled={isOverLimit}
-                className={`w-full touch-target min-h-[48px] py-3.5 px-4 rounded-xl font-bold text-base shadow-md transition-all flex items-center justify-center gap-2 ${
+                className={`w-full touch-target min-h-[48px] py-3.5 px-4 rounded-[22px] font-bold text-base transition-all flex items-center justify-center gap-2 ${
                   isOverLimit
-                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                    : 'bg-[#1f5c8b] text-white active:bg-[#18496e] active:scale-[0.99]'
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-[#1F4BD8] text-white active:bg-blue-800 active:scale-[0.99]'
                 }`}
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5 stroke-[2.25]" />
                 <span>Enviar reporte</span>
               </button>
             </div>
